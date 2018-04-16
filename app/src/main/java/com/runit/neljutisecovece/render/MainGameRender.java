@@ -13,7 +13,8 @@ public class MainGameRender {
 
     private List<GameRender> renders;
 
-    public MainGameRender() {
+    public MainGameRender(int canvasSize) {
+        Cell.CELL_SIZE = canvasSize / 11;
         renders = new ArrayList<>(RENDERS_NUM);
         renders.add(new CellsGameRender());
     }
