@@ -1,84 +1,85 @@
 package com.runit.neljutisecovece.model;
 
 
-import android.annotation.SuppressLint;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Represents a player in the game.
+ * Represents a player in the game which has 4 object to the game with.
  */
 public class Player {
-    // Player id in the game
+    // How many actual object a player can play with.
+    private static final int OBJECTS_PER_PLAYER = 4;
     private final long playerId;
-    // Player's team
-    private final Team currentTeam;
-    // Indicating if player is currently in the game
-    private boolean isInGame;
-    // Reference to the current player cell if the player is in the game.
-    private Cell currentPlayerCell;
+    private final String playerName;
+    private final int playerColor;
+    // Holds all currently occupied cells by this player. Size cannot be greater then 4.
+    private List<Cell> currentlyOccupiedCells;
+    // The last cell that player can move to before entering finishing cells.
+    private Cell closingCell;
 
-    public Player(long playerId, Team playerTeam) {
+    /**
+     * Construct a player with provided player name, id and player color. Closing cell is the last cell the player can move to before entering finishing cells.
+     *
+     * @param playerId    id of the player.
+     * @param playerName  name of the player.
+     * @param playerColor color of the player.
+     * @param closingCell player's closing cell.
+     */
+    public Player(long playerId, String playerName, int playerColor, Cell closingCell) {
         this.playerId = playerId;
-        this.currentTeam = playerTeam;
-        this.isInGame = false;
-        this.currentPlayerCell = null;
+        this.playerName = playerName;
+        this.playerColor = playerColor;
+        this.closingCell = closingCell;
+        currentlyOccupiedCells = new ArrayList<>(OBJECTS_PER_PLAYER);
     }
 
     /**
-     * Method to call when player has moved to another cell.
+     * Ads a new {@link Cell} to currently occupying cells, indicating that this player is now occupying provided cell.
      *
-     * @param newCell {@link Cell} object to move player to.
+     * @param cell new cell to be occupied by this player.
+     * @throws IllegalStateException if player has already occupied 4 cells or the player has already occupied provided cell.
      */
-    public void setCurrentCell(Cell newCell) {
-        this.currentPlayerCell = newCell;
-        this.isInGame = true;
+    public void addNewPlayerCell(Cell cell) throws IllegalArgumentException {
+        if (currentlyOccupiedCells.size() == OBJECTS_PER_PLAYER)
+            throw new IllegalStateException("Cannot add new player cell, reason: Player cannot have more than 4 occupied cells at a time.");
+        else {
+            if (currentlyOccupiedCells.contains(cell))
+                throw new IllegalStateException("Cannot add new player cell, reason: Player is already occupying provided cell: " + cell.toString());
+            else
+                currentlyOccupiedCells.add(cell);
+        }
     }
 
     /**
-     * Method to call when this player has been removed from the game.
-     */
-    public void removedFromGame() {
-        this.currentPlayerCell = null;
-        this.isInGame = false;
-    }
-
-    /**
-     * Chechks if this player is in the game and available to move.
+     * Removes a {@link Cell} from currently occupied cell list.
      *
-     * @return true if this player is in the game.
+     * @throws IllegalStateException if the player is not occupying provided cell.
      */
-    public boolean isInGame() {
-        return this.isInGame;
+    public void removePlayerCell(Cell cell) throws IllegalStateException {
+        boolean success = this.currentlyOccupiedCells.remove(cell);
+        if (!success)
+            throw new IllegalStateException("Cannot remove cell from player: Player hasn't been occupying provided cell: " + cell.toString());
     }
 
     /**
-     * Checks if provided player is from the same team as this one.
-     *
-     * @param player {@link Player} object to compare the teams with.
-     * @return true if both players are form the same team.
+     * Retrieves player's closing cell.
+     * @return {@link Cell} object from this player.
      */
-    public boolean isFromSameTeam(Player player) {
-        return this.currentTeam.equals(player.currentTeam);
+    public Cell getClosingCell() {
+        return this.closingCell;
     }
 
-    /**
-     * Checks if this player belongs to the provided team.
-     *
-     * @param team team to check the player with.
-     * @return true this player belongs to provided team.
-     */
-    public boolean belongsToTeam(Team team) {
-        return this.currentTeam.equals(team);
+    public long getPlayerId() {
+        return playerId;
     }
 
-    /**
-     * Generates new player id for provided team id.
-     * @param playerId long to be used in new player id.
-     * @param teamId team id to be used in new player id.
-     * @return long representing new player id based on the team id.
-     */
-    @SuppressLint("DefaultLocale")
-    public static long generatePlayerId(long playerId, long teamId) {
-        return Long.valueOf(String.format("%d%d", teamId, playerId));
+    public String getPlayerName() {
+        return playerName;
+    }
+
+    public int getPlayerColor() {
+        return playerColor;
     }
 
     @Override

@@ -6,7 +6,6 @@ import android.support.v7.app.AppCompatActivity;
 
 import com.runit.neljutisecovece.R;
 import com.runit.neljutisecovece.model.Game;
-import com.runit.neljutisecovece.model.Team;
 
 public class GameActivity extends AppCompatActivity implements GameScreenContract.View{
 
@@ -17,13 +16,13 @@ public class GameActivity extends AppCompatActivity implements GameScreenContrac
         Game g = new Game("Radovan", "rale");
     }
 
-    @Override
-    public void onCanvasUpdate(Canvas canvas) {
+//    @Override
+//    public void onCanvasUpdate(Canvas canvas) {
+//
+//    }
 
-    }
-
-    @Override
-    public void onGameEnded(Team winner) {
-
-    }
+//    @Override
+//    public void onGameEnded(Team winner) {
+//
+//    }
 }

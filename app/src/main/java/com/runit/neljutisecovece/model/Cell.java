@@ -3,105 +3,77 @@ package com.runit.neljutisecovece.model;
 
 import android.support.annotation.Nullable;
 
+import com.runit.neljutisecovece.model.attributes.CellAttribute;
+
+import java.util.LinkedList;
+import java.util.List;
+
 /**
  * Represents a single cell unit in the game.
  */
 public class Cell {
-    // Current player that is in this cell.
+    // Cell ID
+    private final int id;
+    // Player that is currency on this cell.
     private Player currentPlayer;
-    // Next cell that player can move to.
-    // Owner of the cell indicating that this cell is either an end cell in the game or a start cell for player.
-    private @Nullable
-    Team cellOwner;
-    // Next closing cell that certain player can move to.
-    private @Nullable
-    Cell nextClosingCell;
-    private boolean isEndCell;
+    // Cell special attributes to be drawn onto the screen
+    private List<CellAttribute> attributes;
+    // X, Y coordinate on the screen
+    public int x, y;
+    // Cell size on the screen
+    public static int CELL_SIZE = -1;
 
-    public Cell() {
-        currentPlayer = null;
-        cellOwner = null;
-        nextClosingCell = null;
-        isEndCell = false;
-    }
-
-    public Cell(boolean isEndCell) {
-        this();
-        this.isEndCell = isEndCell;
-    }
-
-    public boolean isEndCell() {
-        return isEndCell;
-    }
-
-    @Nullable
-    public Cell getNextClosingCell() {
-        return nextClosingCell;
+    public Cell(int id) {
+        this.id = id;
     }
 
     /**
-     * Sets the next closing sell a certain player can move to. Player will move to this cell if it's from cell's team owned set by {@link #setCurrentCellTeamOwner(Team)}.
+     * Checks if provided x,y coordinates are within cell bounds.
      *
-     * @param nextClosingCell {@link Cell} next cell players will move to if from the cell's team owner.
+     * @param x X coordinate on the screen.
+     * @param y Y coordinate on the screen.
+     * @return true if these coordinates are within the cell bounds.
      */
-    public void setNextClosingCell(Cell nextClosingCell) {
-        this.nextClosingCell = nextClosingCell;
+    public boolean isInCellBounds(int x, int y) {
+        int realX = this.x - CELL_SIZE / 2;
+        int realY = this.y - CELL_SIZE / 2;
+        return x > realX && x < realX + CELL_SIZE
+                && y > realY && y < realY + CELL_SIZE;
     }
 
     /**
-     * Sets current cell's team owner. If {@link #setNextClosingCell(Cell)} isn't called, this cell will be marked as starting cell for provided team.
+     * Adds a {@link CellAttribute} to be drawn onto the screen.
      *
-     * @param cellOwner {@link Team} object to be set as a cell owner.
+     * @param attribute attribute to be added.
      */
-    public void setCurrentCellTeamOwner(Team cellOwner) {
-        this.cellOwner = cellOwner;
+    public void addAttribute(CellAttribute attribute) {
+        if (this.attributes == null) {
+            this.attributes = new LinkedList<>();
+        }
+        if (!this.attributes.contains(attribute)) {
+            this.attributes.add(attribute);
+        }
     }
 
     /**
-     * Indicates if this cell is a starting point for provided player.
+     * Sets a player to this cell indicating that its occupying current cell.
      *
-     * @param player {@link Player} to check the cell against.
-     * @return true if provided player can start the game from this cell.
+     * @param player {@link Player} to be set.
+     * @return player object who has been on this cell before new player, null if there was no player before the new one.
      */
-    public boolean isStartingCellForPlayer(Player player) {
-        return this.cellOwner != null && this.nextClosingCell == null && player.belongsToTeam(this.cellOwner);
+    public @Nullable Player setNewPlayer(Player player) {
+        Player current = this.currentPlayer;
+        this.currentPlayer = player;
+        return current;
     }
 
     /**
-     * Method to call when new player has stepped on this cell. Sets the cell as occupied and removes any current player in this cell if present.
+     * Remotes a {@link CellAttribute} from the list of attributes ready for drawing.
      *
-     * @param newPlayer {@link Player} object to be set as currently occupying player.
-     * @return {@link Player} object who has been occupying this cell until now, NULL if the cell was empty.
+     * @param attribute to be removed if found.
      */
-    public @Nullable
-    Player newPlayerOnTheCell(Player newPlayer) {
-        Player oldPlayer = this.currentPlayer;
-        this.currentPlayer = newPlayer;
-        return oldPlayer;
-    }
-
-    /**
-     * Method to call when a player has moved from this cell.
-     */
-    public void playerMovedFromCell() {
-        this.currentPlayer = null;
-    }
-
-    /**
-     * Indicates if provided player can move to this cell. Player cannot be set to this cell if the currently occupying player is from the same team as a provided player.
-     *
-     * @param player {@link Player} that is trying to move to this cell.
-     * @return true if player can move to this cell.
-     */
-    public boolean canMoveToThisCell(Player player) {
-        return this.currentPlayer == null || !this.currentPlayer.isFromSameTeam(player);
-    }
-
-    /**
-     * Returns current player that is occupying this cell.
-     * @return {@link Player} instance that is on this cell.
-     */
-    public Player getCurrentPlayer() {
-        return this.currentPlayer;
+    public void remoteAttribute(CellAttribute attribute) {
+        if (this.attributes != null)
+            this.attributes.remove(attribute);
     }
 }

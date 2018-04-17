@@ -7,7 +7,7 @@ import android.support.annotation.NonNull;
 
 import com.runit.neljutisecovece.model.Game;
 import com.runit.neljutisecovece.render.GameRender;
-import com.runit.neljutisecovece.render.SimpleGameRender;
+//import com.runit.neljutisecovece.render.SimpleGameRender;
 
 /**
  * Created by Radovan Ristovic on 4/16/2018.
@@ -28,7 +28,7 @@ public class GamePresenter extends AndroidViewModel implements GameScreenContrac
 
     @Override
     public void init(Canvas canvas, GameScreenContract.View view, String[] teams) {
-        this.mGameRender = new SimpleGameRender(this.getApplication());
+//        this.mGameRender = new SimpleGameRender(this.getApplication());
         this.mCanvas = canvas;
         this.mGameScreen = view;
         this.mGame = new Game(teams);

@@ -2,6 +2,9 @@ package com.runit.neljutisecovece.model;
 
 
 import android.annotation.SuppressLint;
+import android.graphics.Color;
+
+import com.runit.neljutisecovece.model.attributes.EndCellAttribute;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,65 +16,26 @@ import java.util.Map;
  */
 public class Game {
     private static final int STANDARD_CELL_NUM = 40;
-    private static final int PLAYER_IN_TEAM_NUM = 4;
-    private static final int CLOSING_CELLS_PER_TEAM_NUM = 4;
+    private static final int MAX_PLAYER_NUM = 4;
+    private static final int MIN_PLAYER_NUM = 1;
+    private static final int END_CELLS_PER_PLAYER = 4;
+    private static final int[] COLORS = new int[]{Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW};
 
     private ArrayList<Cell> gameFields;
-    private Map<Long, Team> teams;
-    private ArrayList<Player> players;
-    private Map<Long, List<Cell>> closingCells;
+    private Map<Long, Player> players;
+    private Map<Long, List<Cell>> endCells;
 
     /**
      * Construct the game logic.
      *
-     * @param teams array of string containing team names, which length must be from [1, 4].
+     * @param players array of string containing player names, which length must be from [{@value #MIN_PLAYER_NUM}, {@value #MAX_PLAYER_NUM}].
      */
-    public Game(String... teams) {
-        initTeamsAndPlayers(teams.length, teams);
-        initClosingCells();
+    public Game(String... players) {
         initCells();
+        initPlayers(players.length, players);
+        initEndCells(players.length);
     }
 
-    /**
-     * Constructs teams from provided team names.
-     *
-     * @param teamNames  team names.
-     * @param teamNumber number of teams, must be from [1, 4];
-     * @throws IllegalArgumentException if teamNumber is incorrect.
-     */
-    @SuppressLint("UseSparseArrays")
-    private void initTeamsAndPlayers(int teamNumber, String... teamNames) throws IllegalArgumentException {
-        if (teamNumber < 1 || teamNumber > 4) {
-            throw new IllegalArgumentException("Players number is incorrect. Must be a number from 1 to 4, inclusive.");
-        }
-        this.teams = new HashMap<>(teamNumber);
-        this.players = new ArrayList<>(teamNumber * PLAYER_IN_TEAM_NUM);
-        for (int teamIndex = 0; teamIndex < teamNumber; teamIndex++) {
-            Team team = new Team(teamIndex, Team.nextTeamColor(), teamNames[teamIndex]);
-            this.teams.put(team.getTeamId(), team);
-            // Fill the team with players
-            for (int playerIndex = 0; playerIndex < PLAYER_IN_TEAM_NUM; playerIndex++) {
-                players.add(new Player(Player.generatePlayerId(playerIndex, teamIndex), team));
-            }
-        }
-    }
-
-    /**
-     * Constructs closing cells;
-     */
-    @SuppressLint("UseSparseArrays")
-    private void initClosingCells() {
-        closingCells = new HashMap<>(this.teams.keySet().size());
-        for (Long teamId :
-                this.teams.keySet()) {
-            List<Cell> cells = new ArrayList<>(CLOSING_CELLS_PER_TEAM_NUM);
-            for (int i = CLOSING_CELLS_PER_TEAM_NUM - 1; i >= 0; i--) {
-                Cell c = new Cell(true);
-                cells.add(c);
-            }
-            closingCells.put(teamId, cells);
-        }
-    }
 
     /**
      * Construct cells.
@@ -80,49 +44,53 @@ public class Game {
         gameFields = new ArrayList<>(STANDARD_CELL_NUM);
         // Setup first cell
         for (int i = 0; i < STANDARD_CELL_NUM; i++) {
-            Cell c = new Cell();
-            if (i % 10 == 0) {
-                // Starting cell for the team
-                Team t = getTeamForCellPosition(i);
-                if (t != null) {
-                    c.setCurrentCellTeamOwner(getTeamForCellPosition(i));
-                }
-            } else if (i % 10 == 9) {
-                // Cell before ending cells and starting cell
-                Team t = getTeamForCellPosition(i);
-                if (t != null) {
-                    c.setCurrentCellTeamOwner(t);
-                    c.setNextClosingCell(
-                            getFirstClosingCellForTeam(t)
-                    );
-                }
-            }
+            Cell c = new Cell(i);
+            gameFields.add(c);
         }
     }
 
     /**
-     * Helper method for retrieving {@link Team} for provided cell position.
+     * Constructs players from provided names.
      *
-     * @param position position of the cell.
-     * @return team from the game, null if there is no team for provided position.
+     * @param players   player names.
+     * @param playerNum number of players, must be from [{@value #MIN_PLAYER_NUM}, {@value #MAX_PLAYER_NUM}];
+     * @throws IllegalArgumentException if playerNum is incorrect.
      */
-    private Team getTeamForCellPosition(int position) {
-        if (teams.size() > position / 10) {
-            if (position % 10 == 0) {
-                return teams.get(position / 10);
+    @SuppressLint({"UseSparseArrays", "DefaultLocale"})
+    private void initPlayers(int playerNum, String... players) throws IllegalArgumentException {
+        if (playerNum < 1 || playerNum > MAX_PLAYER_NUM) {
+            throw new IllegalArgumentException(String.format("Players number is incorrect. Must be a number from %d to %d, inclusive.", MIN_PLAYER_NUM, MAX_PLAYER_NUM));
+        }
+        this.players = new HashMap<>(playerNum);
+        for (int playerIndex = 0; playerIndex < playerNum; playerIndex++) {
+            Cell closingCell;
+            if (playerIndex == 0) {
+                closingCell = gameFields.get(gameFields.size() - 1);
             } else {
-                if (position / 10 == teams.size() - 1) {
-                    return teams.get(0);
-                } else
-                    return teams.get((position / 10) + 1);
+                closingCell = gameFields.get(playerIndex * 10 - 1);
             }
-        } else {
-            return null;
+            Player player = new Player(playerIndex, players[playerIndex], COLORS[playerIndex], closingCell);
+            this.players.put(player.getPlayerId(), player);
         }
     }
 
-    private Cell getFirstClosingCellForTeam(Team t) {
-        return this.closingCells.get(t.getTeamId()).get(0);
+    /**
+     * Constructs end cells for players.
+     *
+     * @param playerNum number of players to create cells for.
+     */
+    @SuppressLint("UseSparseArrays")
+    private void initEndCells(int playerNum) {
+        endCells = new HashMap<>(playerNum);
+        for (Long playerId :
+                this.players.keySet()) {
+            List<Cell> cells = new ArrayList<>(END_CELLS_PER_PLAYER);
+            for (int i = 0; i < END_CELLS_PER_PLAYER; i++) {
+                Cell c = new Cell(i);
+                c.addAttribute(new EndCellAttribute(this.players.get(playerId).getPlayerColor()));
+                cells.add(c);
+            }
+            endCells.put(playerId, cells);
+        }
     }
-
 }

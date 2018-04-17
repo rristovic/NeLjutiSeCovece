@@ -2,17 +2,15 @@ package com.runit.neljutisecovece.ui.game_activity;
 
 import android.graphics.Canvas;
 
-import com.runit.neljutisecovece.model.Team;
-
 
 /**
  * MVP contract for main game screen.
  */
 public interface GameScreenContract {
     interface View {
-        void onCanvasUpdate(Canvas canvas);
-
-        void onGameEnded(Team winner);
+//        void onCanvasUpdate(Canvas canvas);
+//
+//        void onGameEnded(Team winner);
     }
 
     interface Presenter {

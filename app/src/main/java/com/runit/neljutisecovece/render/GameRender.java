@@ -3,7 +3,7 @@ package com.runit.neljutisecovece.render;
 
 import android.graphics.Canvas;
 
-import com.runit.neljutisecovece.Cell;
+import com.runit.neljutisecovece.model.Cell;
 
 import java.util.List;
 
