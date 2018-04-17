@@ -1,6 +1,7 @@
 package com.runit.neljutisecovece.model;
 
 
+import android.annotation.SuppressLint;
 import android.support.annotation.Nullable;
 
 import com.runit.neljutisecovece.model.attributes.CellAttribute;
@@ -61,7 +62,8 @@ public class Cell {
      * @param player {@link Player} to be set.
      * @return player object who has been on this cell before new player, null if there was no player before the new one.
      */
-    public @Nullable Player setNewPlayer(Player player) {
+    public @Nullable
+    Player setNewPlayer(Player player) {
         Player current = this.currentPlayer;
         this.currentPlayer = player;
         return current;
@@ -75,5 +77,25 @@ public class Cell {
     public void remoteAttribute(CellAttribute attribute) {
         if (this.attributes != null)
             this.attributes.remove(attribute);
+    }
+
+    /**
+     * Retrieves current player who is occupying this cell.
+     *
+     * @return {@link Player} instance, NULL if there is no player on this cell.
+     */
+    public @Nullable
+    Player getOccupyingPlayer() {
+        return currentPlayer;
+    }
+
+    public int getIndex() {
+        return id;
+    }
+
+    @SuppressLint("DefaultLocale")
+    @Override
+    public String toString() {
+        return String.format("Cell id: %d, Player occupying: %s", this.id, this.currentPlayer);
     }
 }

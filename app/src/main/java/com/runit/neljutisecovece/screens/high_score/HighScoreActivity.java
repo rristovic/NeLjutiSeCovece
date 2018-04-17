@@ -1,4 +1,4 @@
-package com.runit.neljutisecovece.ui.high_score;
+package com.runit.neljutisecovece.screens.high_score;
 
 /**
  * Created by Radovan Ristovic on 4/16/2018.

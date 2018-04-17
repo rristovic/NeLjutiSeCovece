@@ -1,7 +1,10 @@
 package com.runit.neljutisecovece.model;
 
 
+import android.annotation.SuppressLint;
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -17,20 +20,24 @@ public class Player {
     private List<Cell> currentlyOccupiedCells;
     // The last cell that player can move to before entering finishing cells.
     private Cell closingCell;
+    // Starting cell for a player
+    private Cell startingCell;
 
     /**
      * Construct a player with provided player name, id and player color. Closing cell is the last cell the player can move to before entering finishing cells.
      *
-     * @param playerId    id of the player.
-     * @param playerName  name of the player.
-     * @param playerColor color of the player.
-     * @param closingCell player's closing cell.
+     * @param playerId     id of the player.
+     * @param playerName   name of the player.
+     * @param playerColor  color of the player.
+     * @param closingCell  player's closing cell.
+     * @param startingCell player's starting cell.
      */
-    public Player(long playerId, String playerName, int playerColor, Cell closingCell) {
+    public Player(long playerId, String playerName, int playerColor, Cell closingCell, Cell startingCell) {
         this.playerId = playerId;
         this.playerName = playerName;
         this.playerColor = playerColor;
         this.closingCell = closingCell;
+        this.startingCell = startingCell;
         currentlyOccupiedCells = new ArrayList<>(OBJECTS_PER_PLAYER);
     }
 
@@ -64,10 +71,20 @@ public class Player {
 
     /**
      * Retrieves player's closing cell.
+     *
      * @return {@link Cell} object from this player.
      */
     public Cell getClosingCell() {
         return this.closingCell;
+    }
+
+    /**
+     * Retrieves player's starting cell.
+     *
+     * @return {@link Cell} object from this player.
+     */
+    public Cell getStartingCell() {
+        return startingCell;
     }
 
     public long getPlayerId() {
@@ -82,6 +99,19 @@ public class Player {
         return playerColor;
     }
 
+    public List<Cell> getCurrentlyOccupiedCells() {
+        return Collections.unmodifiableList(this.currentlyOccupiedCells);
+    }
+
+    /**
+     * Checks if this player is currently occupying some cells on the game field meaning that he has a figure to move onto the next cell.
+     *
+     * @return true if player has cells occupied.
+     */
+    public boolean canPlay() {
+        return this.currentlyOccupiedCells.size() > 0;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj == this)
@@ -92,5 +122,11 @@ public class Player {
         } else {
             return false;
         }
+    }
+
+    @SuppressLint("DefaultLocale")
+    @Override
+    public String toString() {
+        return String.format("Player: %s %s active players: %d", this.playerName, this.playerColor, this.getCurrentlyOccupiedCells().size());
     }
 }
