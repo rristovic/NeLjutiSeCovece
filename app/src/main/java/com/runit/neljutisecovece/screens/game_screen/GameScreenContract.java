@@ -38,6 +38,12 @@ public interface GameScreenContract {
          * @param message String message.
          */
         void showMessage(String message);
+
+        /**
+         * Called wheen current player playing the game has changed.
+         * @param player {@link Player} object from the game who is currently playing the game.
+         */
+        void showCurrentPlayer(Player player);
     }
 
     interface Presenter {

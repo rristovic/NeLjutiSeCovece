@@ -55,6 +55,7 @@ public class GamePresenter extends AndroidViewModel implements GameScreenContrac
                 mGameScreen.startUpdateGameScreen();
             }
         });
+        this.mGameScreen.showCurrentPlayer(mGame.getCurrentPlayer());
     }
 
 
@@ -77,6 +78,7 @@ public class GamePresenter extends AndroidViewModel implements GameScreenContrac
     @Override
     public void onScreenClicked(int x, int y) {
         mGame.onNextClick(x, y);
+        mGameScreen.showCurrentPlayer(mGame.getCurrentPlayer());
     }
 
     @Override

@@ -93,6 +93,17 @@ public class Cell {
         return id;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj instanceof Cell) {
+            Cell compareWith = (Cell) obj;
+            return compareWith.id == this.id;
+        } else
+            return false;
+    }
+
     @SuppressLint("DefaultLocale")
     @Override
     public String toString() {

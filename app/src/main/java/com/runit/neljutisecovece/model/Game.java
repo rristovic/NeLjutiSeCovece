@@ -120,15 +120,25 @@ public class Game {
                 mGameChangedListener.onDiceRoll(lastDiceRoll);
         } else {
             if (currentPlayer.canPlay()) {
-                Cell c = cellTouchHandler.getClickedCell(this.getGameFields(), x, y);
+                Cell c = cellTouchHandler.getClickedCell(this.getGameFields(), x, y, currentPlayer);
                 if (c != null) {
                     if (c.getOccupyingPlayer() != null && c.getOccupyingPlayer().equals(this.currentPlayer)) {
+                        // move if clicked on player's own cell
                         boolean moved = movePlayerToNextCell(c);
                         if (moved) {
                             updateGame();
                         }
                         checkForGameEnd();
-                        nextPlayer();
+                        if (lastDiceRoll != DICE_NUM_FOR_START) {
+                            // Next player only if dice wasn't 6
+                            nextPlayer();
+                        } else {
+                            shouldRoleDice = true;
+                        }
+                    } else if (currentPlayer.getStartingCell().equals(c)) {
+                        // move player to start
+                        movePlayerToStart();
+                        updateGame();
                     }
                 }
             } else if (lastDiceRoll == DICE_NUM_FOR_START) {
@@ -137,17 +147,17 @@ public class Game {
             }
         }
     }
+
     /**
      * Method for placing current player on its starting cell.
      */
     private void movePlayerToStart() {
         Cell start = currentPlayer.getStartingCell();
         Player oldPlayer = start.setNewPlayer(currentPlayer);
-        if (oldPlayer != null) {
+        if (oldPlayer != null && oldPlayer.equals(currentPlayer)) {
             throw new IllegalStateException("Player has been moved to starting cell where the old player was already standing.");
         }
         currentPlayer.addNewPlayerCell(start);
-        nextPlayer();
     }
 
     private void checkForGameEnd() {
@@ -156,6 +166,7 @@ public class Game {
 
     /**
      * Moves current player to the new cell.
+     *
      * @param currentCell old cell that player was on.
      * @return true if moving a player was a success, false otherwise.
      */
@@ -167,7 +178,7 @@ public class Game {
             currentPlayer.removePlayerCell(currentCell);
             // Set player new cell
             currentPlayer.addNewPlayerCell(nextCell);
-             // Move player to the new cell
+            // Move player to the new cell
             Player player = nextCell.setNewPlayer(currentPlayer);
             if (player != null) {
                 // Remove old cell from old player
@@ -298,6 +309,14 @@ public class Game {
      */
     public int getLastDiceRoll() {
         return lastDiceRoll;
+    }
+
+    /**
+     * Retrieves the player who is currently playing the game.
+     * @return {@link Player} object who is currently playing.
+     */
+    public Player getCurrentPlayer() {
+        return currentPlayer;
     }
 }
 

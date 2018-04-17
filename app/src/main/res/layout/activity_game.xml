@@ -3,16 +3,27 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.runit.neljutisecovece.MainActivity">
+    tools:context="com.runit.neljutisecovece.screens.game_screen.GameActivity">
 
     <FrameLayout
         android:id="@+id/container"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"></FrameLayout>
+        android:layout_height="wrap_content"/>
+
+    <FrameLayout
+        android:id="@+id/fl_current_player_color"
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        android:layout_alignParentBottom="true"/>
 
     <TextView
         android:id="@+id/tv_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/container" />
+        android:layout_above="@id/fl_current_player_color"
+        android:layout_below="@id/container"
+        android:gravity="center"
+        android:textSize="20sp" />
+
+
 </RelativeLayout>
