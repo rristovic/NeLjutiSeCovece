@@ -156,6 +156,7 @@ public class Player {
      * @return true if only one combination of movement is available.
      */
     public boolean canPlayOnlyOneWay(int diceRoll) {
+        // TODO calculate is other player's objects (cells, endCell) can move in order with diceRoll. Also if diceRoll is 6
         return this.currentlyOccupiedCells.size() == 1 && !isMovementAvailableInEndCells(diceRoll);
     }
 

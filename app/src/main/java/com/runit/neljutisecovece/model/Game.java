@@ -111,8 +111,10 @@ public class Game {
             lastDiceRoll = dice.rollDice();
             if (currentPlayer.canPlay(lastDiceRoll)) {
                 // player has active fields
-                if (currentPlayer.canPlayOnlyOneWay(lastDiceRoll) && lastDiceRoll != DICE_NUM_FOR_START) {
-                    // Move player automatically if only one player on the field
+                if (currentPlayer.canPlayOnlyOneWay(lastDiceRoll) &&
+                        (lastDiceRoll != DICE_NUM_FOR_START ||
+                                currentPlayer.getCurrentlyOccupiedCells().contains(currentPlayer.getStartingCell()))) {
+                    // Move player automatically if only one player on the field, or 6 is rolled and player is on start
                     movePlayerToNextCell(currentPlayer.getCurrentlyOccupiedCells().get(0));
                     nextPlayer();
                 } else {
@@ -165,6 +167,7 @@ public class Game {
                 movePlayerToStart();
             }
         }
+
         updateGame();
     }
 

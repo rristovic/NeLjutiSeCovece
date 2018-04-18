@@ -58,11 +58,11 @@ public class CellPositionGenerator {
                 generateVertical(canvasHalfSize, CELL_SIZE, i, endCells.get(i));
             } else if (i < 8) {
                 // right end cells
-                generateHorizontal(canvasHalfSize + halfCell, canvasHalfSize, i - 4, endCells.get(i));
+                generateHorizontal(canvasHalfSize + halfCell, canvasHalfSize, i - 4, endCells.get(11 - i));
             } else if (i < 12) {
                 // bottom end cells
                 generateVertical(canvasHalfSize, canvasHalfSize + halfCell,
-                        i - 8, endCells.get(i));
+                        i - 8, endCells.get(19 - i));
             } else {
                 // left end cells
                 generateHorizontal(CELL_SIZE, canvasHalfSize,
