@@ -127,7 +127,7 @@ public class Game {
                     // If player cannot play and the dice is correct, move him to start position
                     movePlayerToStart();
                 } else {
-                    if (currentPlayer.numberOfRetry < NUM_OF_RETRIES) {
+                    if (currentPlayer.numberOfRetry < NUM_OF_RETRIES - 1) {
                         // player can retry 3 times before continuing
                         currentPlayer.numberOfRetry++;
                         shouldRollDice(true);
