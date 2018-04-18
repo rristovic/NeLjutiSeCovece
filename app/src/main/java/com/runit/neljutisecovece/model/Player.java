@@ -22,6 +22,7 @@ public class Player {
     private Cell closingCell;
     // Starting cell for a player
     private Cell startingCell;
+    public int numberOfRretry = 0;
 
     /**
      * Construct a player with provided player name, id and player color. Closing cell is the last cell the player can move to before entering finishing cells.
@@ -101,6 +102,15 @@ public class Player {
 
     public List<Cell> getCurrentlyOccupiedCells() {
         return Collections.unmodifiableList(this.currentlyOccupiedCells);
+    }
+
+    /**
+     * Indicates if player has available figures in its house available to occupy more cells.
+     *
+     * @return true if player can occupy more cells.
+     */
+    public boolean hasAvailablePlayersInHouse() {
+        return this.currentlyOccupiedCells.size() != OBJECTS_PER_PLAYER;
     }
 
     /**

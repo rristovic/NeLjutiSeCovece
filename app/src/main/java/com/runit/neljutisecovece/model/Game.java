@@ -53,7 +53,7 @@ public class Game {
 
     // Game logic vars //
     // Indicating if player should roll the dice
-    private boolean shouldRoleDice;
+    private boolean shouldRollDice;
     // last number of dice rolled
     private int lastDiceRoll;
     // Current player who is playing its turn
@@ -75,12 +75,16 @@ public class Game {
     }
 
     /**
-     * Helper method for setting the next player who should be playing. Sets {@link #shouldRoleDice} to true.
+     * Helper method for setting the next player who should be playing. Changes to next player only if {@link #lastDiceRoll} != {@value #DICE_NUM_FOR_START}.
+     * Sets {@link #shouldRollDice} to true.
      */
     private void nextPlayer() {
         if (this.currentPlayer == null) {
             this.currentPlayer = this.players.get(0);
-        } else {
+        }
+
+        if (lastDiceRoll != DICE_NUM_FOR_START) {
+            // Next player only if dice wasn't 6
             int index = this.players.indexOf(this.currentPlayer);
             if (index == this.players.size() - 1) {
                 this.currentPlayer = this.players.get(0);
@@ -89,7 +93,7 @@ public class Game {
                 this.currentPlayer = this.players.get(index);
             }
         }
-        this.shouldRoleDice = true;
+        shouldRollDice(true);
     }
 
     /**
@@ -100,22 +104,37 @@ public class Game {
      */
     public void onNextClick(int x, int y) {
         // Main game logic
-        if (shouldRoleDice) {
+        if (shouldRollDice) {
             lastDiceRoll = dice.rollDice();
             if (currentPlayer.canPlay()) {
-                // If player can play, wait for the next click
-                shouldRoleDice = false;
-            } else {
-                if (lastDiceRoll == DICE_NUM_FOR_START) {
-                    // If player cannot player and the dice is correct, move him to start position
-                    movePlayerToStart();
-                    updateGame();
-                } else {
-                    // Failed to start game, move to next player
-                    shouldRoleDice = true;
+                // player has active fields
+                if (currentPlayer.getCurrentlyOccupiedCells().size() == 1 && lastDiceRoll != DICE_NUM_FOR_START) {
+                    // Move player automatically if only one player on the field
+                    // TODO inspect if player is moved
+                    movePlayerToNextCell(currentPlayer.getCurrentlyOccupiedCells().get(0));
                     nextPlayer();
+                } else {
+                    // Wait for next click
+                    waitForClick();
+                }
+            } else {
+                // Player don't have active fields
+                if (lastDiceRoll == DICE_NUM_FOR_START) {
+                    // If player cannot play and the dice is correct, move him to start position
+                    movePlayerToStart();
+                } else {
+                    if (currentPlayer.numberOfRretry < 2) {
+                        // player can retry 3 times before continuing
+                        currentPlayer.numberOfRretry++;
+                        shouldRollDice(true);
+                    } else {
+                        currentPlayer.numberOfRretry = 0;
+                        // Failed to start game, move to next player
+                        nextPlayer();
+                    }
                 }
             }
+            // Notify listener
             if (mGameChangedListener != null)
                 mGameChangedListener.onDiceRoll(lastDiceRoll);
         } else {
@@ -125,39 +144,37 @@ public class Game {
                     if (c.getOccupyingPlayer() != null && c.getOccupyingPlayer().equals(this.currentPlayer)) {
                         // move if clicked on player's own cell
                         boolean moved = movePlayerToNextCell(c);
-                        if (moved) {
-                            updateGame();
-                        }
                         checkForGameEnd();
-                        if (lastDiceRoll != DICE_NUM_FOR_START) {
-                            // Next player only if dice wasn't 6
+                        if (moved)
                             nextPlayer();
-                        } else {
-                            shouldRoleDice = true;
-                        }
-                    } else if (currentPlayer.getStartingCell().equals(c)) {
+                    } else if (currentPlayer.getStartingCell().equals(c) && currentPlayer.hasAvailablePlayersInHouse()) {
                         // move player to start
                         movePlayerToStart();
-                        updateGame();
                     }
                 }
             } else if (lastDiceRoll == DICE_NUM_FOR_START) {
                 movePlayerToStart();
-                updateGame();
             }
         }
+        updateGame();
     }
 
+
     /**
-     * Method for placing current player on its starting cell.
+     * Method for placing current player on its starting cell while removes old player if exists.
      */
     private void movePlayerToStart() {
         Cell start = currentPlayer.getStartingCell();
         Player oldPlayer = start.setNewPlayer(currentPlayer);
-        if (oldPlayer != null && oldPlayer.equals(currentPlayer)) {
-            throw new IllegalStateException("Player has been moved to starting cell where the old player was already standing.");
+        if (oldPlayer != null) {
+            if (oldPlayer.equals(currentPlayer)) {
+                throw new IllegalStateException("Player has been moved to starting cell where the old player was already standing.");
+            } else {
+                oldPlayer.removePlayerCell(start);
+            }
         }
         currentPlayer.addNewPlayerCell(start);
+        shouldRollDice(true);
     }
 
     private void checkForGameEnd() {
@@ -211,6 +228,20 @@ public class Game {
             }
             return getNextCellIndex(this.gameFields.get(index), --counter);
         }
+    }
+
+    /**
+     * Called when waiting for another player's click.
+     */
+    private void waitForClick() {
+        shouldRollDice(false);
+    }
+
+    /**
+     * Sets {@link #shouldRollDice} to provided boolean.
+     */
+    private void shouldRollDice(boolean rollDice) {
+        shouldRollDice = rollDice;
     }
 
     /**
@@ -313,6 +344,7 @@ public class Game {
 
     /**
      * Retrieves the player who is currently playing the game.
+     *
      * @return {@link Player} object who is currently playing.
      */
     public Player getCurrentPlayer() {
