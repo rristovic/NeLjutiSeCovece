@@ -6,8 +6,6 @@ import android.arch.lifecycle.LiveData;
 import android.graphics.Color;
 import android.support.annotation.Nullable;
 
-import com.runit.neljutisecovece.render.attributes.CellAttribute;
-import com.runit.neljutisecovece.render.attributes.EndCellAttribute;
 import com.runit.neljutisecovece.screens.game_screen.CellTouchHandler;
 
 import java.util.ArrayList;
@@ -36,11 +34,13 @@ public class Game {
         void onDiceRoll(int number);
     }
 
+    // Number of times player can roll dice it he's not in the game before moving on to the next palyer
+    private static final int NUM_OF_RETRIES = 3;
     private static final int STANDARD_CELL_NUM = 40;
     private static final int MAX_PLAYER_NUM = 4;
     private static final int MIN_PLAYER_NUM = 1;
     private static final int END_CELLS_PER_PLAYER = 4;
-    private static final int[] COLORS = new int[]{Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW};
+    public static final int[] COLORS = new int[]{Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW};
     // Dice number a player must get in order to occupy a starting cell
     private static final int DICE_NUM_FOR_START = 6;
 
@@ -127,7 +127,7 @@ public class Game {
                     // If player cannot play and the dice is correct, move him to start position
                     movePlayerToStart();
                 } else {
-                    if (currentPlayer.numberOfRetry < 0) {
+                    if (currentPlayer.numberOfRetry < NUM_OF_RETRIES) {
                         // player can retry 3 times before continuing
                         currentPlayer.numberOfRetry++;
                         shouldRollDice(true);
@@ -373,10 +373,8 @@ public class Game {
         for (Player player :
                 this.players) {
             List<Cell> cells = new ArrayList<>(END_CELLS_PER_PLAYER);
-            CellAttribute attr = new EndCellAttribute(player.getPlayerColor());
             for (int i = 0; i < END_CELLS_PER_PLAYER; i++) {
                 Cell c = new Cell(i, true);
-                c.addAttribute(attr);
                 cells.add(c);
                 endCellsList.add(c);
             }

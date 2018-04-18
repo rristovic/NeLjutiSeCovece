@@ -14,9 +14,10 @@ import com.runit.neljutisecovece.model.Cell;
 public abstract class CellAttribute {
     static final int STROKE_SIZE = 5;
     static final int STROKE_COLOR = Color.BLACK;
-    static final Paint strokePaint = new Paint();
+    static final Paint strokePaint ;
 
     static {
+        strokePaint = new Paint();
         strokePaint.setAntiAlias(true);
         strokePaint.setColor(STROKE_COLOR);
     }

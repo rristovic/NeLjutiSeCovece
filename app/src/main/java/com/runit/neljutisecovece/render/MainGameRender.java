@@ -4,6 +4,9 @@ package com.runit.neljutisecovece.render;
 import android.graphics.Canvas;
 
 import com.runit.neljutisecovece.model.Cell;
+import com.runit.neljutisecovece.model.Game;
+import com.runit.neljutisecovece.render.attributes.CellAttribute;
+import com.runit.neljutisecovece.render.attributes.EndCellAttribute;
 import com.runit.neljutisecovece.render.cells.CellsGameRender;
 import com.runit.neljutisecovece.render.dice.DiceRender;
 
@@ -45,6 +48,7 @@ public class MainGameRender {
         if (!measured) {
             measured = true;
             positionGenerator.generatePosition(this.canvasSize, gameCells, endCells);
+            addEndCellAttributes(endCells);
         }
         for (GameRender render :
                 renders) {
@@ -67,5 +71,23 @@ public class MainGameRender {
      */
     public boolean isDiceRolling() {
         return this.diceRender.isDiceRolling();
+    }
+
+    private void addEndCellAttributes(List<Cell> endCells) {
+        CellAttribute player1 = new EndCellAttribute(Game.COLORS[0]);
+        CellAttribute player2 = new EndCellAttribute(Game.COLORS[1]);
+        CellAttribute player3 = new EndCellAttribute(Game.COLORS[2]);
+        CellAttribute player4 = new EndCellAttribute(Game.COLORS[3]);
+        for (int i = 0; i < endCells.size(); i++) {
+            if (i < 4) {
+                endCells.get(i).addAttribute(player1);
+            } else if (i < 8) {
+                endCells.get(i).addAttribute(player2);
+            } else if (i < 12) {
+                endCells.get(i).addAttribute(player3);
+            } else {
+                endCells.get(i).addAttribute(player4);
+            }
+        }
     }
 }

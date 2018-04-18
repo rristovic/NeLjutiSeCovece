@@ -4,8 +4,8 @@ import com.runit.neljutisecovece.model.Game;
 
 import org.junit.Test;
 
+import static com.runit.neljutisecovece.PlayersMock.generatePlayers;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -15,6 +15,7 @@ import static org.junit.Assert.assertTrue;
  */
 
 public class GameTest {
+
 
     @Test
     public void initGameTest() {
@@ -36,13 +37,10 @@ public class GameTest {
             failed = true;
         }
         assertTrue(failed);
+
+        String[] players = generatePlayers();
+        g = new Game(players);
+        assertEquals(players.length * 4, g.getEndCellsAsList().size());
     }
 
-    private String[] generatePlayers(int playerNum) {
-        String[] players = new String[playerNum];
-        for (int i = 0; i < playerNum; i++) {
-            players[i] = "Igrac " + (i + 1);
-        }
-        return players;
-    }
 }
