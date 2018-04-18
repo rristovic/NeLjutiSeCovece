@@ -32,8 +32,10 @@ public class GameActivity extends AppCompatActivity implements GameScreenContrac
         gameScreenSize = (int) Math.round(Math.floor(getResources().getDisplayMetrics().widthPixels / 11) * 11);
         initViews();
         mPresenter = ViewModelProviders.of(this).get(GamePresenter.class);
-        if (!mPresenter.isInitialized())
-            mPresenter.init(gameScreenSize, this, new String[]{"crveni", "zeleni"});
+        if (!mPresenter.isInitialized()) {
+            mPresenter.init(gameScreenSize, new String[]{"crveni", "zeleni"});
+        }
+        mPresenter.setView(this);
     }
 
     @Override

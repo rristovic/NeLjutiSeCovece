@@ -5,7 +5,8 @@ import android.annotation.SuppressLint;
 import android.arch.lifecycle.LiveData;
 import android.graphics.Color;
 
-import com.runit.neljutisecovece.model.attributes.EndCellAttribute;
+import com.runit.neljutisecovece.render.attributes.CellAttribute;
+import com.runit.neljutisecovece.render.attributes.EndCellAttribute;
 import com.runit.neljutisecovece.screens.game_screen.CellTouchHandler;
 
 import java.util.ArrayList;
@@ -48,6 +49,7 @@ public class Game {
     private ArrayList<Cell> gameFields;
     private List<Player> players;
     private Map<Long, List<Cell>> endCells;
+    private List<Cell> endCellsList;
     private CellTouchHandler cellTouchHandler;
     private Dice dice;
 
@@ -299,13 +301,16 @@ public class Game {
     @SuppressLint("UseSparseArrays")
     private void initEndCells(int playerNum) {
         endCells = new HashMap<>(playerNum);
+        endCellsList = new ArrayList<>(playerNum * END_CELLS_PER_PLAYER);
         for (Player player :
                 this.players) {
             List<Cell> cells = new ArrayList<>(END_CELLS_PER_PLAYER);
+            CellAttribute attr = new EndCellAttribute(player.getPlayerColor());
             for (int i = 0; i < END_CELLS_PER_PLAYER; i++) {
                 Cell c = new Cell(i);
-                c.addAttribute(new EndCellAttribute(player.getPlayerColor()));
+                c.addAttribute(attr);
                 cells.add(c);
+                endCellsList.add(c);
             }
             endCells.put(player.getPlayerId(), cells);
         }
@@ -316,12 +321,32 @@ public class Game {
     }
 
     /**
-     * Return unmodifiable list of {@link Cell} objects.
+     * Return list of main {@link Cell} object from this game with populated players.
      *
-     * @return {@link LiveData} observable emitting list of cells from this game.
+     * @return {@link LiveData} observable emitting unmodifiable list of cells from this game.
      */
     public List<Cell> getGameFields() {
         return Collections.unmodifiableList(gameFields);
+    }
+
+    /**
+     * Return map of end {@link Cell} object from this game with populated players.
+     * Map key is {@link Player#playerId}, map value is list of end cells for each player.
+     *
+     * @return {@link LiveData} observable emitting map of cells from this game.
+     */
+    public Map<Long, List<Cell>> getEndCells() {
+        return Collections.unmodifiableMap(endCells);
+    }
+
+
+    /**
+     * Return list of end {@link Cell} object from this game with populated players.
+     *
+     * @return {@link LiveData} observable emitting list of cells from this game.
+     */
+    public List<Cell> getEndCellsAsList() {
+        return Collections.unmodifiableList(endCellsList);
     }
 
     /**

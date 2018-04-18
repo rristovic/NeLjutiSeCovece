@@ -51,10 +51,9 @@ public interface GameScreenContract {
          * Initialize method for presenter.
          *
          * @param gameScreenSize size of the game screen on which the game will be rendered.
-         * @param view           {@link View} object implementation.
          * @param players        string array holding player names.
          */
-        void init(int gameScreenSize, View view, String[] players);
+        void init(int gameScreenSize, String[] players);
 
         /**
          * Checks if presenter has already been initialized.
@@ -75,5 +74,11 @@ public interface GameScreenContract {
          * @param canvas {@link Canvas} to draw the game screen on.
          */
         void drawGameScreen(Canvas canvas);
+
+        /**
+         * Sets view reference into presenter.
+         * @param view {@link View} object.
+         */
+        void setView(View view);
     }
 }

@@ -1,4 +1,4 @@
-package com.runit.neljutisecovece.render;
+package com.runit.neljutisecovece.render.dice;
 
 import android.graphics.Canvas;
 import android.graphics.Color;

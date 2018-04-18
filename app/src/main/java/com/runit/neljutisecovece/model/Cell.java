@@ -2,10 +2,12 @@ package com.runit.neljutisecovece.model;
 
 
 import android.annotation.SuppressLint;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.runit.neljutisecovece.model.attributes.CellAttribute;
+import com.runit.neljutisecovece.render.attributes.CellAttribute;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -26,6 +28,7 @@ public class Cell {
 
     public Cell(int id) {
         this.id = id;
+        this.attributes = new LinkedList<>();
     }
 
     /**
@@ -48,9 +51,6 @@ public class Cell {
      * @param attribute attribute to be added.
      */
     public void addAttribute(CellAttribute attribute) {
-        if (this.attributes == null) {
-            this.attributes = new LinkedList<>();
-        }
         if (!this.attributes.contains(attribute)) {
             this.attributes.add(attribute);
         }
@@ -75,8 +75,7 @@ public class Cell {
      * @param attribute to be removed if found.
      */
     public void remoteAttribute(CellAttribute attribute) {
-        if (this.attributes != null)
-            this.attributes.remove(attribute);
+        this.attributes.remove(attribute);
     }
 
     /**
@@ -91,6 +90,15 @@ public class Cell {
 
     public int getIndex() {
         return id;
+    }
+
+    /**
+     * Returns this cell list of attributes that are attached to it.
+     *
+     * @return list of {@link CellAttribute}.
+     */
+    public @NonNull List<CellAttribute> getAttributes() {
+        return Collections.unmodifiableList(attributes);
     }
 
     @Override
