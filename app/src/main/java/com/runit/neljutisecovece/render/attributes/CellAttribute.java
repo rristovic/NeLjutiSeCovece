@@ -8,7 +8,8 @@ import com.runit.neljutisecovece.model.Cell;
 
 
 /**
- * Interface representing single cell attribute, e.g. CellHighlighted, CellDisabled etc. Cell attributes is responsible for drawing itself onto the canvas.
+ * Class representing single cell attribute, e.g. CellHighlighted, CellDisabled etc.
+ * Cell attribute is responsible for drawing itself onto the canvas.
  */
 public abstract class CellAttribute {
     static final int STROKE_SIZE = 5;

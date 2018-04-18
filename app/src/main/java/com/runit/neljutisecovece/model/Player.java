@@ -19,7 +19,7 @@ public class Player {
     // Holds all currently occupied cells by this player. Size cannot be greater then 4.
     private List<Cell> currentlyOccupiedCells;
     // Holds amount of objects in end cells. Cannot be greater then 4.
-    private List<Cell> currentlyOccupiedEndCells;
+    private Cell[] currentlyOccupiedEndCells;
     // The last cell that player can move to before entering finishing cells.
     private Cell closingCell;
     // Starting cell for a player
@@ -42,6 +42,7 @@ public class Player {
         this.closingCell = closingCell;
         this.startingCell = startingCell;
         currentlyOccupiedCells = new ArrayList<>(OBJECTS_PER_PLAYER);
+        currentlyOccupiedEndCells = new Cell[OBJECTS_PER_PLAYER];
     }
 
     /**
@@ -62,12 +63,17 @@ public class Player {
     }
 
     /**
-     * Removes a {@link Cell} from currently occupied cell list.
+     * Removes a {@link Cell} from currently occupied cell list or from end cells.
      *
      * @throws IllegalStateException if the player is not occupying provided cell.
      */
     public void removePlayerCell(Cell cell) throws IllegalStateException {
         boolean success = this.currentlyOccupiedCells.remove(cell);
+        if (!success) {
+            // try removing it from end cells if it isn't in main game cells
+            success = this.currentlyOccupiedEndCells[cell.getIndex()] != null;
+            this.currentlyOccupiedEndCells[cell.getIndex()] = null;
+        }
         if (!success)
             throw new IllegalStateException("Cannot remove cell from player: Player hasn't been occupying provided cell: " + cell.toString());
     }
@@ -75,17 +81,17 @@ public class Player {
     /**
      * Ads a new {@link Cell} to currently occupying end cells.
      *
-     * @param newEndCell  end cell that player should be move to.
+     * @param newEndCell end cell that player should be move to.
      * @throws IllegalStateException if player has already occupied 4 cells or the player has already occupied provided cell.
      */
     public void moveToEndCell(Cell newEndCell) throws IllegalArgumentException {
-        if (currentlyOccupiedEndCells.size() == OBJECTS_PER_PLAYER)
+        if (this.isEndCellsFull())
             throw new IllegalStateException("Cannot move player to end cell, reason: Player cannot have more than 4 occupied end cells at a time.");
         else {
-            if (currentlyOccupiedEndCells.contains(newEndCell))
+            if (isCellInEndCells(newEndCell))
                 throw new IllegalStateException("Cannot move player to end cell, reason: Player is already occupying provided cell: " + newEndCell.toString());
             else {
-                currentlyOccupiedEndCells.add(newEndCell);
+                currentlyOccupiedEndCells[newEndCell.getIndex()] = newEndCell;
             }
         }
     }
@@ -130,16 +136,69 @@ public class Player {
      * @return true if player can occupy more cells.
      */
     public boolean hasAvailablePlayersInHouse() {
-        return this.currentlyOccupiedCells.size() != OBJECTS_PER_PLAYER;
+        return this.currentlyOccupiedCells.size() + this.getCurrentOccupiedEndCellsNumber() != OBJECTS_PER_PLAYER;
     }
 
     /**
-     * Checks if this player is currently occupying some cells on the game field meaning that he has a figure to move onto the next cell.
+     * Checks if player has available movement to play.
      *
+     * @param diceRoll last dice number player has rolled.
      * @return true if player has cells occupied.
      */
-    public boolean canPlay() {
-        return this.currentlyOccupiedCells.size() > 0;
+    public boolean canPlay(int diceRoll) {
+        return this.currentlyOccupiedCells.size() > 0 || isMovementAvailableInEndCells(diceRoll);
+    }
+
+    /**
+     * Checks if this player has only one way to play the game.
+     *
+     * @param diceRoll last dice number player has rolled.
+     * @return true if only one combination of movement is available.
+     */
+    public boolean canPlayOnlyOneWay(int diceRoll) {
+        return this.currentlyOccupiedCells.size() == 1 && !isMovementAvailableInEndCells(diceRoll);
+    }
+
+    /**
+     * Indicates if player has available movements in its end cells.
+     *
+     * @param diceRoll player's current dice role number.
+     * @return true if player can play within end cells.
+     */
+    private boolean isMovementAvailableInEndCells(int diceRoll) {
+        if (diceRoll > OBJECTS_PER_PLAYER) {
+            return false;
+        }
+        for (int i = 0; i < this.currentlyOccupiedEndCells.length; i++) {
+            if (this.currentlyOccupiedEndCells[i] != null) {
+                int index = i + diceRoll;
+                if (index < OBJECTS_PER_PLAYER && this.currentlyOccupiedEndCells[index] == null) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean isEndCellsFull() {
+        return getCurrentOccupiedEndCellsNumber() == OBJECTS_PER_PLAYER;
+    }
+
+    private int getCurrentOccupiedEndCellsNumber() {
+        int count = 0;
+        for (int i = 0; i < currentlyOccupiedEndCells.length; i++) {
+            if (currentlyOccupiedEndCells[i] != null)
+                count++;
+        }
+        return count;
+    }
+
+    private boolean isCellInEndCells(Cell cell) {
+        for (int i = 0; i < currentlyOccupiedEndCells.length; i++) {
+            if (currentlyOccupiedEndCells[i] != null && currentlyOccupiedEndCells[i].equals(cell))
+                return true;
+        }
+        return false;
     }
 
     @Override

@@ -109,11 +109,10 @@ public class Game {
         // Main game logic
         if (shouldRollDice) {
             lastDiceRoll = dice.rollDice();
-            if (currentPlayer.canPlay()) {
+            if (currentPlayer.canPlay(lastDiceRoll)) {
                 // player has active fields
-                if (currentPlayer.getCurrentlyOccupiedCells().size() == 1 && lastDiceRoll != DICE_NUM_FOR_START) {
+                if (currentPlayer.canPlayOnlyOneWay(lastDiceRoll) && lastDiceRoll != DICE_NUM_FOR_START) {
                     // Move player automatically if only one player on the field
-                    // TODO inspect if player is moved
                     movePlayerToNextCell(currentPlayer.getCurrentlyOccupiedCells().get(0));
                     nextPlayer();
                 } else {
@@ -126,7 +125,7 @@ public class Game {
                     // If player cannot play and the dice is correct, move him to start position
                     movePlayerToStart();
                 } else {
-                    if (currentPlayer.numberOfRetry < 2) {
+                    if (currentPlayer.numberOfRetry < 0) {
                         // player can retry 3 times before continuing
                         currentPlayer.numberOfRetry++;
                         shouldRollDice(true);
@@ -141,15 +140,22 @@ public class Game {
             if (mGameChangedListener != null)
                 mGameChangedListener.onDiceRoll(lastDiceRoll);
         } else {
-            if (currentPlayer.canPlay()) {
+            if (currentPlayer.canPlay(lastDiceRoll)) {
                 Cell c = cellTouchHandler.getClickedCell(this.getGameFields(), x, y, currentPlayer);
+                if (c == null) {
+                    c = cellTouchHandler.getClickedCell(this.getEndCells().get(currentPlayer.getPlayerId()), x, y, currentPlayer);
+                }
                 if (c != null) {
                     if (c.getOccupyingPlayer() != null && c.getOccupyingPlayer().equals(this.currentPlayer)) {
                         // move if clicked on player's own cell
                         boolean moved = movePlayerToNextCell(c);
                         checkForGameEnd();
-                        if (moved)
+                        if (moved) {
                             nextPlayer();
+                        } else if (currentPlayer.canPlayOnlyOneWay(lastDiceRoll)) {
+                            // Failed to move because player is blocking himself
+                            nextPlayer();
+                        }
                     } else if (currentPlayer.getStartingCell().equals(c) && currentPlayer.hasAvailablePlayersInHouse()) {
                         // move player to start
                         movePlayerToStart();
@@ -196,8 +202,9 @@ public class Game {
             // Set player new cell
             if (this.endCells.get(currentPlayer.getPlayerId()).contains(nextCell)) {
                 // Next cell is end cell
-                currentPlayer.moveToEndCell(currentCell, nextCell);
+                currentPlayer.moveToEndCell(nextCell);
                 currentPlayer.removePlayerCell(currentCell);
+                nextCell.setNewPlayer(currentPlayer);
             } else {
                 currentPlayer.removePlayerCell(currentCell);
                 currentPlayer.addNewPlayerCell(nextCell);
@@ -224,7 +231,6 @@ public class Game {
      */
     private @Nullable
     Cell getNextCell(Cell currentCell) {
-        // Usual next cell index without end cells
         if (this.endCells.get(currentPlayer.getPlayerId()).contains(currentCell)) {
             // Is in end cells
             return getNextEndCell(currentCell);
@@ -233,7 +239,7 @@ public class Game {
             Cell closingCell = currentPlayer.getClosingCell();
             if ((closingCell.getIndex() < nextCellIndex && closingCell.getIndex() >= currentCell.getIndex())
                     || (nextCellIndex < currentCell.getIndex() && closingCell.getIndex() >= currentCell.getIndex())) {
-                // Next cell should be closing cell
+                // Next cell should be end cell
                 int index = getEndCellIndexAfterStandard(currentCell);
                 if (index != -1) {
                     return endCells.get(currentPlayer.getPlayerId()).get(index);
@@ -366,7 +372,7 @@ public class Game {
             List<Cell> cells = new ArrayList<>(END_CELLS_PER_PLAYER);
             CellAttribute attr = new EndCellAttribute(player.getPlayerColor());
             for (int i = 0; i < END_CELLS_PER_PLAYER; i++) {
-                Cell c = new Cell(i);
+                Cell c = new Cell(i, true);
                 c.addAttribute(attr);
                 cells.add(c);
                 endCellsList.add(c);

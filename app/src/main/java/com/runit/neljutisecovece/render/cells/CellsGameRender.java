@@ -64,13 +64,14 @@ public class CellsGameRender implements GameRender {
     private void drawCircle(Canvas canvas, Cell c, Integer playerColor) {
         canvas.drawCircle(c.x, c.y, strokeSize, stroke);
         canvas.drawCircle(c.x, c.y, fillSize, fill);
-        for (CellAttribute attr : c.getAttributes()) {
-            attr.render(canvas, c);
-        }
 
         if (playerColor != null) {
             playerPaint.setColor(playerColor);
             canvas.drawCircle(c.x, c.y, fillSize - PLAYER_FILL_SIZE, playerPaint);
+        }
+
+        for (CellAttribute attr : c.getAttributes()) {
+            attr.render(canvas, c);
         }
     }
 }

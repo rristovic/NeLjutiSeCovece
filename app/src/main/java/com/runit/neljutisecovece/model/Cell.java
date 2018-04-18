@@ -17,6 +17,7 @@ import java.util.List;
 public class Cell {
     // Cell ID
     private final int id;
+    private boolean isEndCell;
     // Player that is currency on this cell.
     private Player currentPlayer;
     // Cell special attributes to be drawn onto the screen
@@ -27,6 +28,11 @@ public class Cell {
     public static int CELL_SIZE = -1;
 
     public Cell(int id) {
+        this(id, false);
+    }
+
+    public Cell(int id, boolean isEndCell) {
+        this.isEndCell = isEndCell;
         this.id = id;
         this.attributes = new LinkedList<>();
     }
@@ -108,7 +114,7 @@ public class Cell {
             return true;
         if (obj instanceof Cell) {
             Cell compareWith = (Cell) obj;
-            return compareWith.id == this.id;
+            return compareWith.id == this.id && this.isEndCell == compareWith.isEndCell;
         } else
             return false;
     }
