@@ -18,11 +18,13 @@ public class Player {
     private final int playerColor;
     // Holds all currently occupied cells by this player. Size cannot be greater then 4.
     private List<Cell> currentlyOccupiedCells;
+    // Holds amount of objects in end cells. Cannot be greater then 4.
+    private int currentlyOccupiedEndCells;
     // The last cell that player can move to before entering finishing cells.
     private Cell closingCell;
     // Starting cell for a player
     private Cell startingCell;
-    public int numberOfRretry = 0;
+    public int numberOfRetry = 0;
 
     /**
      * Construct a player with provided player name, id and player color. Closing cell is the last cell the player can move to before entering finishing cells.

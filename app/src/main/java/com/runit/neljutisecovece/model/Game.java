@@ -4,6 +4,7 @@ package com.runit.neljutisecovece.model;
 import android.annotation.SuppressLint;
 import android.arch.lifecycle.LiveData;
 import android.graphics.Color;
+import android.support.annotation.Nullable;
 
 import com.runit.neljutisecovece.render.attributes.CellAttribute;
 import com.runit.neljutisecovece.render.attributes.EndCellAttribute;
@@ -125,12 +126,12 @@ public class Game {
                     // If player cannot play and the dice is correct, move him to start position
                     movePlayerToStart();
                 } else {
-                    if (currentPlayer.numberOfRretry < 2) {
+                    if (currentPlayer.numberOfRetry < 2) {
                         // player can retry 3 times before continuing
-                        currentPlayer.numberOfRretry++;
+                        currentPlayer.numberOfRetry++;
                         shouldRollDice(true);
                     } else {
-                        currentPlayer.numberOfRretry = 0;
+                        currentPlayer.numberOfRetry = 0;
                         // Failed to start game, move to next player
                         nextPlayer();
                     }
@@ -190,13 +191,15 @@ public class Game {
      * @return true if moving a player was a success, false otherwise.
      */
     private boolean movePlayerToNextCell(Cell currentCell) {
-        int nextCellIndex = getNextCellIndex(currentCell, lastDiceRoll);
-        Cell nextCell = this.gameFields.get(nextCellIndex);
-        if (nextCell.getOccupyingPlayer() == null || !nextCell.getOccupyingPlayer().equals(currentPlayer)) {
-            // Remove player old cell
-            currentPlayer.removePlayerCell(currentCell);
-            // Set player new cell
-            currentPlayer.addNewPlayerCell(nextCell);
+        Cell nextCell = getNextCell(currentCell);
+        if (nextCell != null && (nextCell.getOccupyingPlayer() == null || !nextCell.getOccupyingPlayer().equals(currentPlayer))) {
+           // Set player new cell
+            if (this.endCells.get(currentPlayer.getPlayerId()).contains(nextCell)) {
+
+            } else {
+                currentPlayer.removePlayerCell(currentCell);
+                currentPlayer.addNewPlayerCell(nextCell);
+            }
             // Move player to the new cell
             Player player = nextCell.setNewPlayer(currentPlayer);
             if (player != null) {
@@ -212,7 +215,35 @@ public class Game {
     }
 
     /**
-     * Returns next cell index recursive.
+     * Returns next cell that a player should moved to. Can be next cell from {@link #gameFields} or from {@link #endCells}.
+     *
+     * @param currentCell current cell that player is on.
+     * @return next cell that a player should move to, NULL if player cannot move to next cell because out of bounds.
+     */
+    private @Nullable
+    Cell getNextCell(Cell currentCell) {
+        // Usual next cell index without end cells
+        if (this.endCells.get(currentPlayer.getPlayerId()).contains(currentCell)) {
+            // Is in end cells
+            return getNextEndCell(currentCell);
+        } else {
+            int nextCellIndex = getNextCellIndex(currentCell, lastDiceRoll);
+            Cell closingCell = currentPlayer.getClosingCell();
+            if ((closingCell.getIndex() < nextCellIndex && closingCell.getIndex() >= currentCell.getIndex())
+                    || (nextCellIndex < currentCell.getIndex() && closingCell.getIndex() >= currentCell.getIndex())) {
+                // Next cell should be closing cell
+                int index = getEndCellIndexAfterStandard(currentCell);
+                if (index != -1) {
+                    return endCells.get(currentPlayer.getPlayerId()).get(index);
+                } else return null;
+            } else {
+                return gameFields.get(nextCellIndex);
+            }
+        }
+    }
+
+    /**
+     * Returns next cell index a player should moved to disregarding end cells.
      *
      * @param lastCell the cell player is currently on.
      * @param counter  dice roll of the player.
@@ -230,6 +261,32 @@ public class Game {
             }
             return getNextCellIndex(this.gameFields.get(index), --counter);
         }
+    }
+
+    /**
+     * Returns END cell index a player should be moved to from standard cells.
+     *
+     * @param lastCell the cell player is currently on.
+     * @return next cell index, -1 if index is out of bounds.
+     */
+    private int getEndCellIndexAfterStandard(Cell lastCell) {
+        int stepsInEndCells = lastDiceRoll - (currentPlayer.getClosingCell().getIndex() - lastCell.getIndex());
+        if (stepsInEndCells <= END_CELLS_PER_PLAYER) {
+            return stepsInEndCells - 1;
+        } else {
+            return -1;
+        }
+    }
+
+    /**
+     * Retrieves next end cell a player should be move to when already in ending cells.
+     *
+     * @param currentCell the cell player is currently on,
+     * @return next end cell, NULL if out of bounds.
+     */
+    private @Nullable
+    Cell getNextEndCell(Cell currentCell) {
+        return currentCell.getIndex() + lastDiceRoll > 3 ? null : endCells.get(currentPlayer.getPlayerId()).get(currentCell.getIndex() + lastDiceRoll);
     }
 
     /**

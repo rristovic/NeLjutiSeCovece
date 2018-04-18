@@ -66,7 +66,7 @@ public class CellPositionGenerator {
             } else {
                 // left end cells
                 generateHorizontal(CELL_SIZE, canvasHalfSize,
-                        i - 12, endCells.get(i - 2));
+                        i - 12, endCells.get(i));
             }
 
         }

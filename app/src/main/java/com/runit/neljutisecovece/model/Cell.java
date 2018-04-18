@@ -97,7 +97,8 @@ public class Cell {
      *
      * @return list of {@link CellAttribute}.
      */
-    public @NonNull List<CellAttribute> getAttributes() {
+    public @NonNull
+    List<CellAttribute> getAttributes() {
         return Collections.unmodifiableList(attributes);
     }
 
@@ -115,6 +116,6 @@ public class Cell {
     @SuppressLint("DefaultLocale")
     @Override
     public String toString() {
-        return String.format("Cell id: %d, Player occupying: %s", this.id, this.currentPlayer);
+        return String.format("(%d,%d) id: %d, Player occupying: %s", this.x, this.y, this.id, this.currentPlayer);
     }
 }
