@@ -19,7 +19,7 @@ public class Player {
     // Holds all currently occupied cells by this player. Size cannot be greater then 4.
     private List<Cell> currentlyOccupiedCells;
     // Holds amount of objects in end cells. Cannot be greater then 4.
-    private int currentlyOccupiedEndCells;
+    private List<Cell> currentlyOccupiedEndCells;
     // The last cell that player can move to before entering finishing cells.
     private Cell closingCell;
     // Starting cell for a player
@@ -70,6 +70,24 @@ public class Player {
         boolean success = this.currentlyOccupiedCells.remove(cell);
         if (!success)
             throw new IllegalStateException("Cannot remove cell from player: Player hasn't been occupying provided cell: " + cell.toString());
+    }
+
+    /**
+     * Ads a new {@link Cell} to currently occupying end cells.
+     *
+     * @param newEndCell  end cell that player should be move to.
+     * @throws IllegalStateException if player has already occupied 4 cells or the player has already occupied provided cell.
+     */
+    public void moveToEndCell(Cell newEndCell) throws IllegalArgumentException {
+        if (currentlyOccupiedEndCells.size() == OBJECTS_PER_PLAYER)
+            throw new IllegalStateException("Cannot move player to end cell, reason: Player cannot have more than 4 occupied end cells at a time.");
+        else {
+            if (currentlyOccupiedEndCells.contains(newEndCell))
+                throw new IllegalStateException("Cannot move player to end cell, reason: Player is already occupying provided cell: " + newEndCell.toString());
+            else {
+                currentlyOccupiedEndCells.add(newEndCell);
+            }
+        }
     }
 
     /**

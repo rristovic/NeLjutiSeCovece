@@ -193,18 +193,20 @@ public class Game {
     private boolean movePlayerToNextCell(Cell currentCell) {
         Cell nextCell = getNextCell(currentCell);
         if (nextCell != null && (nextCell.getOccupyingPlayer() == null || !nextCell.getOccupyingPlayer().equals(currentPlayer))) {
-           // Set player new cell
+            // Set player new cell
             if (this.endCells.get(currentPlayer.getPlayerId()).contains(nextCell)) {
-
+                // Next cell is end cell
+                currentPlayer.moveToEndCell(currentCell, nextCell);
+                currentPlayer.removePlayerCell(currentCell);
             } else {
                 currentPlayer.removePlayerCell(currentCell);
                 currentPlayer.addNewPlayerCell(nextCell);
-            }
-            // Move player to the new cell
-            Player player = nextCell.setNewPlayer(currentPlayer);
-            if (player != null) {
-                // Remove old cell from old player
-                player.removePlayerCell(nextCell);
+                // Move player to the new cell
+                Player player = nextCell.setNewPlayer(currentPlayer);
+                if (player != null) {
+                    // Remove old cell from old player
+                    player.removePlayerCell(nextCell);
+                }
             }
             // Remove cell old player
             currentCell.setNewPlayer(null);
