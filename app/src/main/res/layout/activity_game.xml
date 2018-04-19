@@ -3,12 +3,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/game_background"
     tools:context="com.runit.neljutisecovece.screens.game_screen.GameActivity">
 
     <FrameLayout
         android:id="@+id/fl_game_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/margin_big" />
 
     <FrameLayout
         android:id="@+id/fl_current_player_color"
@@ -29,8 +31,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@id/fl_current_player_color"
-        android:layout_below="@id/fl_game_view"
+        android:layout_marginBottom="@dimen/margin_big"
         android:gravity="center"
+        android:textColor="@color/material_text_white"
         android:textSize="20sp" />
 
 

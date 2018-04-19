@@ -217,6 +217,6 @@ public class Player {
     @SuppressLint("DefaultLocale")
     @Override
     public String toString() {
-        return String.format("Player: %s %s active players: %d", this.playerName, this.playerColor, this.getCurrentlyOccupiedCells().size());
+        return String.format("%s %s active players: %d", this.playerName, this.playerColor, this.getCurrentlyOccupiedCells().size());
     }
 }

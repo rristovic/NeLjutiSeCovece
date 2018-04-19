@@ -9,6 +9,7 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
@@ -30,6 +31,8 @@ public class GameActivity extends AppCompatActivity implements GameScreenContrac
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
         gameScreenSize = (int) Math.round(Math.floor(getResources().getDisplayMetrics().widthPixels / 11) * 11);
@@ -98,7 +101,7 @@ public class GameActivity extends AppCompatActivity implements GameScreenContrac
             }
         });
         mDiceView = new DiceView(this, () ->
-            mPresenter.onDiceRolling(false)
+                mPresenter.onDiceRolling(false)
         );
         mDiceView.setOnTouchListener((v, event) -> {
             mGestureDetector.onTouchEvent(event);

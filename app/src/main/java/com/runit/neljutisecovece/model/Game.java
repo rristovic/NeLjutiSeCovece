@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.arch.lifecycle.LiveData;
 import android.graphics.Color;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.runit.neljutisecovece.screens.game_screen.CellTouchHandler;
 
@@ -114,6 +115,7 @@ public class Game {
         if (shouldRollDice) {
             lastDiceRoll = dice.rollDice();
             // Notify listener
+            Log.d("Game",String.format("Player: %s, rolled number: %d", currentPlayer, lastDiceRoll));
             if (mGameChangedListener != null)
                 mGameChangedListener.onDiceRoll(lastDiceRoll);
             if (currentPlayer.canPlay(lastDiceRoll)) {
