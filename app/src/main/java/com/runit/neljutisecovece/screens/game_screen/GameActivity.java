@@ -8,18 +8,21 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.runit.neljutisecovece.R;
 import com.runit.neljutisecovece.model.Player;
+import com.runit.neljutisecovece.render.dice.DiceView;
 import com.runit.neljutisecovece.util.UIUtil;
 
 public class GameActivity extends AppCompatActivity implements GameScreenContract.View {
 
     private TextView mTvText;
-    private GameView mGameScreen;
-    private FrameLayout mContainer, mFlPlayerColor;
+    private View mGameScreen;
+    private DiceView mDiceView;
+    private FrameLayout mGameContainer, mDiceContainer, mFlPlayerColor;
     private GameScreenContract.Presenter mPresenter;
     private GestureDetector mGestureDetector;
     // Game size in order for all 11 field to be set up correctly. Must be a number that has x % 20 == 0.
@@ -33,23 +36,9 @@ public class GameActivity extends AppCompatActivity implements GameScreenContrac
         initViews();
         mPresenter = ViewModelProviders.of(this).get(GamePresenter.class);
         if (!mPresenter.isInitialized()) {
-            mPresenter.init(gameScreenSize, new String[]{"crveni", "zeleni", "plavi", "zuti"});
+            mPresenter.init(gameScreenSize, new String[]{"crveni", "zeleni"});
         }
         mPresenter.setView(this);
-    }
-
-    @Override
-    public void startUpdateGameScreen() {
-        if (mGameScreen != null) {
-            mGameScreen.invalidate();
-        }
-    }
-
-    @Override
-    public void endUpdateGameScreen() {
-        if (mGameScreen != null) {
-            mGameScreen.invalidate();
-        }
     }
 
     @Override
@@ -70,22 +59,33 @@ public class GameActivity extends AppCompatActivity implements GameScreenContrac
 
     @Override
     public void updateGameScreen() {
-        if (mGameScreen != null)
+        if (mGameScreen != null) {
             mGameScreen.invalidate();
+        }
     }
+
+    @Override
+    public void updateDice(int diceNumber) {
+        mDiceView.drawDice(diceNumber);
+    }
+
 
     @SuppressLint("ClickableViewAccessibility")
     private void initViews() {
         mTvText = findViewById(R.id.tv_text);
         mFlPlayerColor = findViewById(R.id.fl_current_player_color);
-        mContainer = findViewById(R.id.container);
-        mGameScreen = new GameView(this) {
+        mGameContainer = findViewById(R.id.fl_game_view);
+        mDiceContainer = findViewById(R.id.fl_dice_view);
+        mGameScreen = new View(this) {
             @Override
             protected void onDraw(Canvas canvas) {
                 mPresenter.drawGameScreen(canvas);
                 super.onDraw(canvas);
             }
         };
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(gameScreenSize, gameScreenSize);
+        mGameScreen.setLayoutParams(params);
+        mGameContainer.addView(mGameScreen);
         mGameScreen.setOnTouchListener((v, event) -> {
             mGestureDetector.onTouchEvent(event);
             return true;
@@ -97,8 +97,15 @@ public class GameActivity extends AppCompatActivity implements GameScreenContrac
                 return true;
             }
         });
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(gameScreenSize, gameScreenSize);
-        mGameScreen.setLayoutParams(params);
-        mContainer.addView(mGameScreen);
+        mDiceView = new DiceView(this, () ->
+            mPresenter.onDiceRolling(false)
+        );
+        mDiceView.setOnTouchListener((v, event) -> {
+            mGestureDetector.onTouchEvent(event);
+            return true;
+        });
+        FrameLayout.LayoutParams diceParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        mDiceView.setLayoutParams(diceParams);
+        mDiceContainer.addView(mDiceView);
     }
 }

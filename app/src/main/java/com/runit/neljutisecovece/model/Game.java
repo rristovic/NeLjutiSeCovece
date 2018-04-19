@@ -32,9 +32,11 @@ public class Game {
          * @param number number indicating dice number.
          */
         void onDiceRoll(int number);
+
+        void onPlayerChanged();
     }
 
-    // Number of times player can roll dice it he's not in the game before moving on to the next palyer
+    // Number of times player can roll dice it he's not in the game before moving on to the next player. Must be greater then 0.
     private static final int NUM_OF_RETRIES = 3;
     private static final int STANDARD_CELL_NUM = 40;
     private static final int MAX_PLAYER_NUM = 4;
@@ -95,6 +97,8 @@ public class Game {
                 index++;
                 this.currentPlayer = this.players.get(index);
             }
+            if (this.mGameChangedListener != null)
+                this.mGameChangedListener.onPlayerChanged();
         }
         shouldRollDice(true);
     }
@@ -109,18 +113,22 @@ public class Game {
         // Main game logic
         if (shouldRollDice) {
             lastDiceRoll = dice.rollDice();
+            // Notify listener
+            if (mGameChangedListener != null)
+                mGameChangedListener.onDiceRoll(lastDiceRoll);
             if (currentPlayer.canPlay(lastDiceRoll)) {
                 // player has active fields
-                if (currentPlayer.canPlayOnlyOneWay(lastDiceRoll) &&
-                        (lastDiceRoll != DICE_NUM_FOR_START ||
-                                currentPlayer.getCurrentlyOccupiedCells().contains(currentPlayer.getStartingCell()))) {
-                    // Move player automatically if only one player on the field, or 6 is rolled and player is on start
-                    movePlayerToNextCell(currentPlayer.getCurrentlyOccupiedCells().get(0));
-                    nextPlayer();
-                } else {
-                    // Wait for next click
-                    waitForClick();
-                }
+//                if (currentPlayer.canPlayOnlyOneWay(lastDiceRoll) &&
+//                        (lastDiceRoll != DICE_NUM_FOR_START ||
+//                                currentPlayer.getCurrentlyOccupiedCells().contains(currentPlayer.getStartingCell()))) {
+//                    // Move player automatically if only one player on the field, or 6 is rolled and player is on start
+//                    movePlayerToNextCell(currentPlayer.getCurrentlyOccupiedCells().get(0));
+//                    nextPlayer();
+//                } else {
+//                    // Wait for next click
+//                    waitForClick();
+//                }
+                waitForClick();
             } else {
                 // Player don't have active fields
                 if (lastDiceRoll == DICE_NUM_FOR_START) {
@@ -138,9 +146,6 @@ public class Game {
                     }
                 }
             }
-            // Notify listener
-            if (mGameChangedListener != null)
-                mGameChangedListener.onDiceRoll(lastDiceRoll);
         } else {
             if (currentPlayer.canPlay(lastDiceRoll)) {
                 Cell c = cellTouchHandler.getClickedCell(this.getGameFields(), x, y, currentPlayer);
@@ -440,6 +445,10 @@ public class Game {
      */
     public Player getCurrentPlayer() {
         return currentPlayer;
+    }
+
+    public boolean getShouldRollDice() {
+        return shouldRollDice;
     }
 }
 

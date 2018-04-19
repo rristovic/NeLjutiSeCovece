@@ -23,14 +23,11 @@ public interface GameScreenContract {
         void updateGameScreen();
 
         /**
-         * Called when interval update of the screen is requested by presenter.
+         * Called by presenter when dice update is needed.
+         *
+         * @param diceNumber dice number to be drawn.
          */
-        void startUpdateGameScreen();
-
-        /**
-         * Called when stopping interval update of the screen is requested by presenter.
-         */
-        void endUpdateGameScreen();
+        void updateDice(int diceNumber);
 
         /**
          * Called when message needs to be shown.
@@ -41,6 +38,7 @@ public interface GameScreenContract {
 
         /**
          * Called wheen current player playing the game has changed.
+         *
          * @param player {@link Player} object from the game who is currently playing the game.
          */
         void showCurrentPlayer(Player player);
@@ -75,8 +73,17 @@ public interface GameScreenContract {
          */
         void drawGameScreen(Canvas canvas);
 
+
+        /**
+         * Called by the view when dice roll is being drawn.
+         *
+         * @param isRolling indicating is dice is still rolling, is dice is still being drawn. False if dice has finished drawing.
+         */
+        void onDiceRolling(boolean isRolling);
+
         /**
          * Sets view reference into presenter.
+         *
          * @param view {@link View} object.
          */
         void setView(View view);

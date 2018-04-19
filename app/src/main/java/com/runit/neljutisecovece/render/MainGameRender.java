@@ -17,7 +17,6 @@ public class MainGameRender {
     private static final int RENDERS_NUM = 1;
 
     private List<GameRender> renders;
-    private DiceRender diceRender;
     private CellPositionGenerator positionGenerator;
     // indicating if x,y coordinates of cells has been measured
     private boolean measured;
@@ -33,7 +32,6 @@ public class MainGameRender {
         Cell.CELL_SIZE = canvasSize / 11;
         renders = new ArrayList<>(RENDERS_NUM);
         renders.add(new CellsGameRender());
-        diceRender = new DiceRender();
         measured = false;
         positionGenerator = new CellPositionGenerator();
     }
@@ -54,23 +52,6 @@ public class MainGameRender {
                 renders) {
             render.render(canvas, gameCells, endCells);
         }
-    }
-
-    /**
-     * Renders a dice on the game screen.
-     *
-     * @param canvas     {@link Canvas} object to render the dice on.
-     * @param diceNumber number representing current dice state.
-     */
-    public void renderDice(Canvas canvas, int diceNumber) {
-        this.diceRender.renderDice(canvas, diceNumber);
-    }
-
-    /**
-     * Checks if dice is still rolling.
-     */
-    public boolean isDiceRolling() {
-        return this.diceRender.isDiceRolling();
     }
 
     private void addEndCellAttributes(List<Cell> endCells) {

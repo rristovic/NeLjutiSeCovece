@@ -25,8 +25,7 @@ public class DiceRender {
     }
 
     public void renderDice(Canvas canvas, int diceNumber) {
-        canvas.drawRect(canvas.getHeight() / 2 - Cell.CELL_SIZE / 2, canvas.getHeight() / 2 - Cell.CELL_SIZE / 2,
-                canvas.getHeight() / 2 + Cell.CELL_SIZE / 2, canvas.getHeight() / 2 + Cell.CELL_SIZE / 2, fill);
+        canvas.drawRect(0, 0, canvas.getWidth(), canvas.getHeight(), fill);
         canvas.drawText(String.valueOf(diceNumber), canvas.getHeight() / 2, canvas.getHeight() / 2, number);
     }
 
