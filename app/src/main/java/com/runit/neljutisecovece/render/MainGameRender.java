@@ -2,19 +2,25 @@ package com.runit.neljutisecovece.render;
 
 
 import android.graphics.Canvas;
+import android.graphics.Color;
 
 import com.runit.neljutisecovece.model.Cell;
 import com.runit.neljutisecovece.model.Game;
 import com.runit.neljutisecovece.render.attributes.CellAttribute;
 import com.runit.neljutisecovece.render.attributes.EndCellAttribute;
+import com.runit.neljutisecovece.render.attributes.StartCellAttribute;
 import com.runit.neljutisecovece.render.cells.CellsGameRender;
-import com.runit.neljutisecovece.render.dice.DiceRender;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainGameRender {
     private static final int RENDERS_NUM = 1;
+    public static final int FIRST_PLAYER_START_POSITION = 0;
+    public static final int SECOND_PLAYER_START_POSITION = 10;
+    public static final int THIRD_PLAYER_START_POSITION = 20;
+    public static final int FORTH_PLAYER_START_POSITION = 30;
+    public static final int[] COLORS = new int[]{Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW};
 
     private List<GameRender> renders;
     private CellPositionGenerator positionGenerator;
@@ -46,7 +52,9 @@ public class MainGameRender {
         if (!measured) {
             measured = true;
             positionGenerator.generatePosition(this.canvasSize, gameCells, endCells);
+            // Order is important for drawing!
             addEndCellAttributes(endCells);
+            addStartCellAttributes(gameCells);
         }
         for (GameRender render :
                 renders) {
@@ -55,10 +63,10 @@ public class MainGameRender {
     }
 
     private void addEndCellAttributes(List<Cell> endCells) {
-        CellAttribute player1 = new EndCellAttribute(Game.COLORS[0]);
-        CellAttribute player2 = new EndCellAttribute(Game.COLORS[1]);
-        CellAttribute player3 = new EndCellAttribute(Game.COLORS[2]);
-        CellAttribute player4 = new EndCellAttribute(Game.COLORS[3]);
+        CellAttribute player1 = new EndCellAttribute(COLORS[0]);
+        CellAttribute player2 = new EndCellAttribute(COLORS[1]);
+        CellAttribute player3 = new EndCellAttribute(COLORS[2]);
+        CellAttribute player4 = new EndCellAttribute(COLORS[3]);
         for (int i = 0; i < endCells.size(); i++) {
             if (i < 4) {
                 endCells.get(i).addAttribute(player1);
@@ -69,6 +77,25 @@ public class MainGameRender {
             } else {
                 endCells.get(i).addAttribute(player4);
             }
+        }
+    }
+
+    private void addStartCellAttributes(List<Cell> gameFields) {
+        CellAttribute player1 = new StartCellAttribute(COLORS[0]);
+        CellAttribute player2 = new StartCellAttribute(COLORS[1]);
+        CellAttribute player3 = new StartCellAttribute(COLORS[2]);
+        CellAttribute player4 = new StartCellAttribute(COLORS[3 ]);
+        if (gameFields.get(FIRST_PLAYER_START_POSITION) != null) {
+            gameFields.get(FIRST_PLAYER_START_POSITION).addAttribute(player1);
+        }
+        if (gameFields.get(SECOND_PLAYER_START_POSITION) != null) {
+            gameFields.get(SECOND_PLAYER_START_POSITION).addAttribute(player2);
+        }
+        if (gameFields.get(THIRD_PLAYER_START_POSITION) != null) {
+            gameFields.get(THIRD_PLAYER_START_POSITION).addAttribute(player3);
+        }
+        if (gameFields.get(FORTH_PLAYER_START_POSITION) != null) {
+            gameFields.get(FORTH_PLAYER_START_POSITION).addAttribute(player4);
         }
     }
 }

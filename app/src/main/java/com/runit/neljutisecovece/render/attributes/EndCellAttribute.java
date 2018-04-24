@@ -22,10 +22,10 @@ public class EndCellAttribute extends CellAttribute {
 
     @Override
     public void render(Canvas canvas, Cell cell) {
-        canvas.drawCircle(cell.x, cell.y, Cell.CELL_SIZE / 2, CellAttribute.strokePaint);
+        canvas.drawCircle(cell.x, cell.y, Cell.CELL_SIZE / 2, CellAttribute.STROKE_PAINT);
         canvas.drawCircle(cell.x, cell.y, Cell.CELL_SIZE / 2 - CellAttribute.STROKE_SIZE, this.cellPaint);
         if (cell.getOccupyingPlayer() != null)
-            canvas.drawCircle(cell.x, cell.y, Cell.CELL_SIZE / 2 - (CellAttribute.STROKE_SIZE * 3), CellAttribute.strokePaint);
+            canvas.drawCircle(cell.x, cell.y, Cell.CELL_SIZE / 2 - (CellAttribute.STROKE_SIZE * 3), CellAttribute.STROKE_PAINT);
     }
 
     @Override

@@ -3,7 +3,6 @@ package com.runit.neljutisecovece.model;
 
 import android.annotation.SuppressLint;
 import android.arch.lifecycle.LiveData;
-import android.graphics.Color;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
@@ -14,6 +13,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.runit.neljutisecovece.render.MainGameRender.COLORS;
 
 /**
  * Class containing game logic.
@@ -43,7 +44,6 @@ public class Game {
     private static final int MAX_PLAYER_NUM = 4;
     private static final int MIN_PLAYER_NUM = 1;
     private static final int END_CELLS_PER_PLAYER = 4;
-    public static final int[] COLORS = new int[]{Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW};
     // Dice number a player must get in order to occupy a starting cell
     private static final int DICE_NUM_FOR_START = 6;
 
@@ -78,6 +78,18 @@ public class Game {
         initPlayers(players.length, players);
         initEndCells(players.length);
         nextPlayer();
+        test();
+    }
+
+    private void test() {
+        gameFields.get(9).setNewPlayer(currentPlayer);
+        currentPlayer.addNewPlayerCell(gameFields.get(9));
+        currentPlayer.moveToEndCell(endCells.get(currentPlayer.getPlayerId()).get(1));
+        currentPlayer.moveToEndCell(endCells.get(currentPlayer.getPlayerId()).get(0));
+        currentPlayer.moveToEndCell(endCells.get(currentPlayer.getPlayerId()).get(2));
+        endCells.get(currentPlayer.getPlayerId()).get(0).setNewPlayer(currentPlayer);
+        endCells.get(currentPlayer.getPlayerId()).get(1).setNewPlayer(currentPlayer);
+        endCells.get(currentPlayer.getPlayerId()).get(2).setNewPlayer(currentPlayer);
     }
 
     /**
@@ -115,10 +127,10 @@ public class Game {
         if (shouldRollDice) {
             lastDiceRoll = dice.rollDice();
             // Notify listener
-            Log.d("Game",String.format("Player: %s, rolled number: %d", currentPlayer, lastDiceRoll));
+            Log.d("Game", String.format("Player: %s, rolled number: %d", currentPlayer, lastDiceRoll));
             if (mGameChangedListener != null)
                 mGameChangedListener.onDiceRoll(lastDiceRoll);
-            if (currentPlayer.canPlay(lastDiceRoll)) {
+            if (currentPlayer.hasAvailablePlayersInGame(lastDiceRoll)) {
                 // player has active fields
 //                if (currentPlayer.canPlayOnlyOneWay(lastDiceRoll) &&
 //                        (lastDiceRoll != DICE_NUM_FOR_START ||
@@ -130,7 +142,11 @@ public class Game {
 //                    // Wait for next click
 //                    waitForClick();
 //                }
-                waitForClick();
+                if (isMovementAvailableOnGameField()) {
+                    waitForClick();
+                } else {
+                    nextPlayer();
+                }
             } else {
                 // Player don't have active fields
                 if (lastDiceRoll == DICE_NUM_FOR_START) {
@@ -149,7 +165,7 @@ public class Game {
                 }
             }
         } else {
-            if (currentPlayer.canPlay(lastDiceRoll)) {
+            if (currentPlayer.hasAvailablePlayersInGame(lastDiceRoll)) {
                 Cell c = cellTouchHandler.getClickedCell(this.getGameFields(), x, y, currentPlayer);
                 if (c == null) {
                     c = cellTouchHandler.getClickedCell(this.getEndCells().get(currentPlayer.getPlayerId()), x, y, currentPlayer);
@@ -196,8 +212,33 @@ public class Game {
         shouldRollDice(true);
     }
 
+    /**
+     * Method for checking if any player has finished its game.
+     */
     private void checkForGameEnd() {
+        for (Player p :
+                players) {
+            if (p.isEndCellsFull()) {
+                mGameChangedListener.onGameEnd(p);
+                return;
+            }
+        }
+    }
 
+    /**
+     * Indicates if player has available movements in the game field.
+     *
+     * @return true if player can make a move.
+     */
+    private boolean isMovementAvailableOnGameField() {
+        for (Cell c :
+                currentPlayer.getCurrentlyOccupiedCells()) {
+            Cell nextCell = getNextCell(c);
+            if (nextCell != null && nextCell.getOccupyingPlayer() == null) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

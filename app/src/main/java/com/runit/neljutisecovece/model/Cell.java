@@ -52,7 +52,7 @@ public class Cell {
     }
 
     /**
-     * Adds a {@link CellAttribute} to be drawn onto the screen.
+     * Adds a {@link CellAttribute} to be drawn onto the screen. Order of attribute added will determine the order of its drawing onto the screen.
      *
      * @param attribute attribute to be added.
      */

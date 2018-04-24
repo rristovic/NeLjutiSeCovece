@@ -126,6 +126,10 @@ public class Player {
         return playerColor;
     }
 
+    /**
+     * Retrieves unmodifiable list of player's currently occupied game fields.
+     * @return list of player's occupied cells.
+     */
     public List<Cell> getCurrentlyOccupiedCells() {
         return Collections.unmodifiableList(this.currentlyOccupiedCells);
     }
@@ -140,13 +144,13 @@ public class Player {
     }
 
     /**
-     * Checks if player has available movement to play.
+     * Checks if player has available players to play with. Checks if player can play in the end cells according to rolled number.
      *
      * @param diceRoll last dice number player has rolled.
      * @return true if player has cells occupied.
      */
-    public boolean canPlay(int diceRoll) {
-        return this.currentlyOccupiedCells.size() > 0 || isMovementAvailableInEndCells(diceRoll);
+    public boolean hasAvailablePlayersInGame(int diceRoll) {
+        return currentlyOccupiedCells.size() > 0 || isMovementAvailableInEndCells(diceRoll);
     }
 
     /**
@@ -181,7 +185,12 @@ public class Player {
         return false;
     }
 
-    private boolean isEndCellsFull() {
+    /**
+     * Mehod for checking if player's end cell list is fully occupied.
+     *
+     * @return true if all end cells are occupied.
+     */
+    public boolean isEndCellsFull() {
         return getCurrentOccupiedEndCellsNumber() == OBJECTS_PER_PLAYER;
     }
 

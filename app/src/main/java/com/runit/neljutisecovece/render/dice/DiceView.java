@@ -6,6 +6,8 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.Log;
 import android.view.View;
 
@@ -23,7 +25,6 @@ import java.util.concurrent.CountDownLatch;
 public class DiceView extends View {
     private Bitmap mDiceSprite;
     private final DiceRollCallBack mDiceRollCallback;
-    private final DiceRender mDiceRender;
     private int mCurDiceNumber = -1;
     static final int FPS = 180;
     static final long TIME_PER_FRAME = (long) (1000f / FPS);
@@ -44,7 +45,6 @@ public class DiceView extends View {
         options.inPreferredConfig = Bitmap.Config.ARGB_8888;
         this.mDiceSprite = BitmapFactory.decodeResource(context.getResources(), R.drawable.dice_sprite);
         this.mDiceRollCallback = diceRollCallBack;
-        this.mDiceRender = new DiceRender();
         this.paint.setAntiAlias(true);
     }
 
@@ -62,6 +62,9 @@ public class DiceView extends View {
         }
         Log.d("DiceView", "ImageCounter: " + String.valueOf(mImageCounter));
 
+        if (mImageCounter == -1) {
+            mImageCounter = 0;
+        }
         if (mImageCounter == 0) {
             src.left = (TOTAL_IMAGES_IN_SPRITE + this.mCurDiceNumber - 1) * src.bottom;
             src.right = (TOTAL_IMAGES_IN_SPRITE + this.mCurDiceNumber - 1) * src.bottom + src.bottom;
@@ -71,25 +74,23 @@ public class DiceView extends View {
         }
         canvas.drawBitmap(this.mDiceSprite, src, dst, paint);
         super.onDraw(canvas);
-        mImageCounter--;
         mImageDrawn.countDown();
     }
 
 
     private void newTask() {
         mImageCounter = TOTAL_IMAGES_IN_SPRITE;
+        mImageDrawn = new CountDownLatch(1);
         JobExecutor.execute(() -> {
             while (mImageCounter >= 0) {
                 long startTime = System.currentTimeMillis();
                 DiceView.this.postInvalidate();
-                while (true) {
-                    try {
-                        mImageDrawn.await();
-                        mImageDrawn = new CountDownLatch(1);
-                        break;
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                try {
+                    mImageDrawn.await();
+                    mImageCounter--;
+                    mImageDrawn = new CountDownLatch(1);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
                 try {
                     long timeToWait = TIME_PER_FRAME - (startTime - System.currentTimeMillis());
@@ -105,5 +106,24 @@ public class DiceView extends View {
 
     private void notifyObserver() {
         JobExecutor.executeOnUI(mDiceRollCallback::onDiceRendered);
+    }
+
+    @Override
+    public Parcelable onSaveInstanceState() {
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("superState", super.onSaveInstanceState());
+        bundle.putInt("last_number_rolled", this.mCurDiceNumber);
+        return bundle;
+    }
+
+    @Override
+    public void onRestoreInstanceState(Parcelable state) {
+        if (state instanceof Bundle) // implicit null check
+        {
+            Bundle bundle = (Bundle) state;
+            this.mCurDiceNumber = bundle.getInt("last_number_rolled");
+            state = bundle.getParcelable("superState");
+        }
+        super.onRestoreInstanceState(state);
     }
 }

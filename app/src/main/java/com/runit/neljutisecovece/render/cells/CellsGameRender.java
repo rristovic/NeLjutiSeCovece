@@ -17,24 +17,15 @@ import static com.runit.neljutisecovece.model.Cell.CELL_SIZE;
  * Renders {@link Cell} fields in the game with populated players.
  */
 public class CellsGameRender implements GameRender {
-    private static final int STROKE_SIZE = 5;
-    private static final int PLAYER_FILL_SIZE = 10;
     private int strokeSize;
     private int fillSize;
-    Paint fill = new Paint();
     Paint playerPaint = new Paint();
-    Paint stroke = new Paint();
     Paint highlightStroke = new Paint();
 
     public CellsGameRender() {
         strokeSize = CELL_SIZE / 2;
-        fillSize = CELL_SIZE / 2 - STROKE_SIZE;
-        fill.setColor(Color.WHITE);
-        fill.setAntiAlias(true);
+        fillSize = CELL_SIZE / 2 - CellAttribute.STROKE_SIZE;
         playerPaint.setAntiAlias(true);
-        stroke.setColor(Color.BLACK);
-        stroke.setAntiAlias(true);
-        stroke.setTextSize(48);
         highlightStroke.setColor(Color.RED);
     }
 
@@ -62,12 +53,12 @@ public class CellsGameRender implements GameRender {
     }
 
     private void drawCircle(Canvas canvas, Cell c, Integer playerColor) {
-        canvas.drawCircle(c.x, c.y, strokeSize, stroke);
-        canvas.drawCircle(c.x, c.y, fillSize, fill);
+        canvas.drawCircle(c.x, c.y, strokeSize, CellAttribute.STROKE_PAINT);
+        canvas.drawCircle(c.x, c.y, fillSize, CellAttribute.CELL_FILL);
 
         if (playerColor != null) {
             playerPaint.setColor(playerColor);
-            canvas.drawCircle(c.x, c.y, fillSize - PLAYER_FILL_SIZE, playerPaint);
+            canvas.drawCircle(c.x, c.y, fillSize - CellAttribute.STROKE_SIZE, playerPaint);
         }
 
         for (CellAttribute attr : c.getAttributes()) {

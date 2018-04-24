@@ -12,14 +12,18 @@ import com.runit.neljutisecovece.model.Cell;
  * Cell attribute is responsible for drawing itself onto the canvas.
  */
 public abstract class CellAttribute {
-    static final int STROKE_SIZE = 5;
-    static final int STROKE_COLOR = Color.BLACK;
-    static final Paint strokePaint ;
+    public static final int STROKE_SIZE = 5;
+    public static final int STROKE_COLOR = Color.BLACK;
+    public static final Paint STROKE_PAINT;
+    public static final Paint CELL_FILL;
 
     static {
-        strokePaint = new Paint();
-        strokePaint.setAntiAlias(true);
-        strokePaint.setColor(STROKE_COLOR);
+        STROKE_PAINT = new Paint();
+        STROKE_PAINT.setAntiAlias(true);
+        STROKE_PAINT.setColor(STROKE_COLOR);
+        CELL_FILL = new Paint();
+        CELL_FILL.setColor(Color.WHITE);
+        CELL_FILL.setAntiAlias(true);
     }
 
     /**

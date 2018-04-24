@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">NeLjutiSeCovece</string>
+    <string name="game_over">Game over</string>
+    <string name="close">Close</string>
+    <string name="player_won_msg">Player \"%s\" has won the game!</string>
 </resources>

@@ -23,6 +23,7 @@ public class GamePresenter extends AndroidViewModel implements GameScreenContrac
     private MainGameRender mGameRender;
     private Game mGame;
     private boolean mDiceRolling = false;
+    private int mLastDiceRoll = -1;
 
     private Queue<Runnable> mTaskQueue = new LinkedList<>();
 
@@ -37,22 +38,25 @@ public class GamePresenter extends AndroidViewModel implements GameScreenContrac
         this.mGame.setGameFieldsChangedListener(new Game.GameChangedListener() {
             @Override
             public void onGameEnd(Player winner) {
-                addTaskToQueue(GamePresenter.this::updateScreen);
+                queueTaskAndExecute(() -> {
+                    if (mGameScreen.get() != null) mGameScreen.get().showGameEndDialog(winner);
+                });
             }
 
             @Override
             public void onGameFieldChanged(List<Cell> fields) {
-                addTaskToQueue(GamePresenter.this::updateScreen);
+                queueTaskAndExecute(GamePresenter.this::updateScreen);
             }
 
             @Override
             public void onEndGameFieldChanged(Map<Long, List<Cell>> endCells) {
-                addTaskToQueue(GamePresenter.this::updateScreen);
+                queueTaskAndExecute(GamePresenter.this::updateScreen);
             }
 
             @Override
             public void onDiceRoll(int number) {
                 if (mGameScreen.get() != null) {
+                    mLastDiceRoll = number;
                     setDiceRolling(true);
                     mGameScreen.get().updateDice(number);
                 }
@@ -60,7 +64,7 @@ public class GamePresenter extends AndroidViewModel implements GameScreenContrac
 
             @Override
             public void onPlayerChanged() {
-                addTaskToQueue(GamePresenter.this::updateCurrentPlayer);
+                queueTaskAndExecute(GamePresenter.this::updateCurrentPlayer);
             }
         });
     }
@@ -89,7 +93,7 @@ public class GamePresenter extends AndroidViewModel implements GameScreenContrac
     public void onDiceRolling(boolean isRolling) {
         if (!isRolling) {
             // Finished rolling
-            addTaskToQueue(this::updateScreen);
+            queueTaskAndExecute(this::updateScreen);
         }
         setDiceRolling(isRolling);
     }
@@ -115,15 +119,16 @@ public class GamePresenter extends AndroidViewModel implements GameScreenContrac
 
     /**
      * Adds tasks to task queue. {@link #executePendingTasks()} will be called immediately.
+     *
      * @param r {@link Runnable} task to be added to queue.
      */
-    private void addTaskToQueue(Runnable r) {
+    private void queueTaskAndExecute(Runnable r) {
         mTaskQueue.add(r);
         executePendingTasks();
     }
 
     /**
-     * Executes all pending tasks in {@link #mTaskQueue}.
+     * Executes all pending tasks on {@link #mTaskQueue} if <code>{@link #mDiceRolling} == false</code>.
      */
     private void executePendingTasks() {
         while (!mDiceRolling && !mTaskQueue.isEmpty()) {
@@ -134,6 +139,7 @@ public class GamePresenter extends AndroidViewModel implements GameScreenContrac
 
     /**
      * Sets {@link #mDiceRolling} variable. Is provided param is true, {@link #executePendingTasks()} will be called indicating dice roll is finished and should update game screen.
+     *
      * @param rolling boolean indicating if dice is currently in rolling state.
      */
     private void setDiceRolling(boolean rolling) {
@@ -146,6 +152,10 @@ public class GamePresenter extends AndroidViewModel implements GameScreenContrac
     @Override
     public boolean isInitialized() {
         return this.mGame != null && this.mGameRender != null && this.mGameScreen != null;
+    }
+
+    public int getLastDiceRoll() {
+        return mLastDiceRoll;
     }
 
     @Override

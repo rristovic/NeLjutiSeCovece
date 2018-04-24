@@ -2,8 +2,10 @@ package com.runit.neljutisecovece.screens.game_screen;
 
 import android.annotation.SuppressLint;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.DialogInterface;
 import android.graphics.Canvas;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -46,7 +48,13 @@ public class GameActivity extends AppCompatActivity implements GameScreenContrac
 
     @Override
     public void showGameEndDialog(Player winner) {
-
+        AlertDialog ad = new AlertDialog.Builder(this)
+                .setTitle(R.string.game_over)
+                .setMessage(String.format(getString(R.string.player_won_msg), winner.getPlayerName()))
+                .setNeutralButton(R.string.close, (dialog, which) -> setScreenEnable(false))
+                .create();
+        setScreenEnable(false);
+        ad.show();
     }
 
     @Override
@@ -90,7 +98,8 @@ public class GameActivity extends AppCompatActivity implements GameScreenContrac
         mGameScreen.setLayoutParams(params);
         mGameContainer.addView(mGameScreen);
         mGameScreen.setOnTouchListener((v, event) -> {
-            mGestureDetector.onTouchEvent(event);
+            if (mGameScreen.isEnabled())
+                mGestureDetector.onTouchEvent(event);
             return true;
         });
         mGestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
@@ -103,12 +112,19 @@ public class GameActivity extends AppCompatActivity implements GameScreenContrac
         mDiceView = new DiceView(this, () ->
                 mPresenter.onDiceRolling(false)
         );
+        mDiceView.setId(R.id.dice_view_id);
         mDiceView.setOnTouchListener((v, event) -> {
-            mGestureDetector.onTouchEvent(event);
+            if (mDiceView.isEnabled())
+                mGestureDetector.onTouchEvent(event);
             return true;
         });
         FrameLayout.LayoutParams diceParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         mDiceView.setLayoutParams(diceParams);
         mDiceContainer.addView(mDiceView);
+    }
+
+    private void setScreenEnable(boolean enabled) {
+        mGameScreen.setEnabled(enabled);
+        mDiceView.setEnabled(enabled);
     }
 }
