@@ -170,7 +170,7 @@ public class Player {
      * @param diceRoll player's current dice role number.
      * @return true if player can play within end cells.
      */
-    private boolean isMovementAvailableInEndCells(int diceRoll) {
+    public boolean isMovementAvailableInEndCells(int diceRoll) {
         if (diceRoll > OBJECTS_PER_PLAYER) {
             return false;
         }

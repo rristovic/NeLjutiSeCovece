@@ -142,7 +142,7 @@ public class Game {
 //                    // Wait for next click
 //                    waitForClick();
 //                }
-                if (isMovementAvailableOnGameField()) {
+                if (isPlayerMovementAvailable()) {
                     waitForClick();
                 } else {
                     nextPlayer();
@@ -226,11 +226,15 @@ public class Game {
     }
 
     /**
-     * Indicates if player has available movements in the game field.
+     * Indicates if player has available movements in the game field or in the end cells.
      *
      * @return true if player can make a move.
      */
-    private boolean isMovementAvailableOnGameField() {
+    private boolean isPlayerMovementAvailable() {
+        boolean canMoveInEnd = currentPlayer.isMovementAvailableInEndCells(lastDiceRoll);
+        if (canMoveInEnd)
+            return true;
+
         for (Cell c :
                 currentPlayer.getCurrentlyOccupiedCells()) {
             Cell nextCell = getNextCell(c);
