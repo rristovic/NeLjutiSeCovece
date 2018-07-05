@@ -78,18 +78,6 @@ public class Game {
         initPlayers(players.length, players);
         initEndCells(players.length);
         nextPlayer();
-        test();
-    }
-
-    private void test() {
-        gameFields.get(9).setNewPlayer(currentPlayer);
-        currentPlayer.addNewPlayerCell(gameFields.get(9));
-        currentPlayer.moveToEndCell(endCells.get(currentPlayer.getPlayerId()).get(1));
-        currentPlayer.moveToEndCell(endCells.get(currentPlayer.getPlayerId()).get(0));
-        currentPlayer.moveToEndCell(endCells.get(currentPlayer.getPlayerId()).get(2));
-        endCells.get(currentPlayer.getPlayerId()).get(0).setNewPlayer(currentPlayer);
-        endCells.get(currentPlayer.getPlayerId()).get(1).setNewPlayer(currentPlayer);
-        endCells.get(currentPlayer.getPlayerId()).get(2).setNewPlayer(currentPlayer);
     }
 
     /**

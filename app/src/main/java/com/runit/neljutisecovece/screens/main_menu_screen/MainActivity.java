@@ -1,0 +1,15 @@
+package com.runit.neljutisecovece.screens.main_menu_screen;
+
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+
+import com.runit.neljutisecovece.R;
+
+public class MainActivity extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+    }
+}

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <item name="dice_view_id" type="id">dice_view_id</item>
-
-
+    <string name="app_id">366750411217</string>
 </resources>
